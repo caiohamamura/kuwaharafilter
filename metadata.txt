@@ -26,9 +26,9 @@ email=caiohamamura@gmail.com
 # tags are comma separated with spaces allowed
 tags=kuwahara, filter, edge, preserving
 
-homepage=http://plugins.qgis.org/plugins/kuw_filter/
-tracker=
-repository=
+homepage=https://github.com/caiohamamura/kuwaharafilter/wiki
+tracker=https://github.com/caiohamamura/kuwaharafilter/issues
+repository=https://github.com/caiohamamura/kuwaharafilter
 icon=icon.png
 # experimental flag
 experimental=False
