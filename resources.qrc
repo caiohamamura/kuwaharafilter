@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/plugins/kuw_filter" >
+        <file>icon.png</file>
+    </qresource>
+</RCC>
