@@ -80,10 +80,8 @@ class Ui_form1(object):
         self.inputb = QtGui.QPushButton(form1)
         self.inputb.setGeometry(QtCore.QRect(320, 10, 31, 23))
         self.inputb.setObjectName(_fromUtf8("inputb"))
-        self.retranslateUi(form1)
         self.setWindowFlags(QtCore.Qt.WindowFlags(QtCore.Qt.WindowMaximizeButtonHint))
-        self.retranslateUi(form1)
-        self.retranslateUi(form1)
+        self.translateEn(form1)
         self.setWindowFlags(QtCore.Qt.WindowFlags(QtCore.Qt.WindowMaximizeButtonHint))
         QtCore.QMetaObject.connectSlotsByName(form1)
     def retranslateUi(self, form1):
@@ -102,7 +100,22 @@ class Ui_form1(object):
         self.mem.setText(QtGui.QApplication.translate("form1", "100", None, QtGui.QApplication.UnicodeUTF8))
         self.addout.setText(QtGui.QApplication.translate("form1", "Adicionar resultados ao projeto", None, QtGui.QApplication.UnicodeUTF8))
         self.inputb.setText(QtGui.QApplication.translate("form1", "...", None, QtGui.QApplication.UnicodeUTF8))
-
+    def translateEn(self,form1):
+        self.label.setText(QtGui.QApplication.translate("form1", "Input raster", None, QtGui.QApplication.UnicodeUTF8))
+        self.outputb.setText(QtGui.QApplication.translate("form1", "...", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_2.setText(QtGui.QApplication.translate("form1", "Output raster", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setToolTip(QtGui.QApplication.translate("form1", "Reference band from which variances will be calculated to choose subwindow mean.", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_3.setText(QtGui.QApplication.translate("form1", "Reference band", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setToolTip(QtGui.QApplication.translate("form1", "Maximum memory usage in megabytes (it is an approximated value, since algorithm will only choose how many lines will be read at once).", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_4.setText(QtGui.QApplication.translate("form1", "Max memory usage (MB)", None, QtGui.QApplication.UnicodeUTF8))
+        self.run.setText(QtGui.QApplication.translate("form1", "Run!", None, QtGui.QApplication.UnicodeUTF8))
+        self.output.setPlaceholderText(QtGui.QApplication.translate("form1", "<temporary file>", None, QtGui.QApplication.UnicodeUTF8))
+        self.refb.setToolTip(QtGui.QApplication.translate("form1", "Reference band from which variances will be calculated to choose subwindow mean.", None, QtGui.QApplication.UnicodeUTF8))
+        self.refb.setText(QtGui.QApplication.translate("form1", "1", None, QtGui.QApplication.UnicodeUTF8))
+        self.mem.setToolTip(QtGui.QApplication.translate("form1", "Maximum memory usage in megabytes (it is an approximated value, since algorithm will only choose how many lines will be read at once).", None, QtGui.QApplication.UnicodeUTF8))
+        self.mem.setText(QtGui.QApplication.translate("form1", "100", None, QtGui.QApplication.UnicodeUTF8))
+        self.addout.setText(QtGui.QApplication.translate("form1", "Add results to project", None, QtGui.QApplication.UnicodeUTF8))
+        self.inputb.setText(QtGui.QApplication.translate("form1", "...", None, QtGui.QApplication.UnicodeUTF8))
 import resources
 
 if __name__ == "__main__":
