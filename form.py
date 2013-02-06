@@ -101,7 +101,7 @@ class Ui_form1(object):
         self.addout.setText(QtGui.QApplication.translate("form1", "Adicionar resultados ao projeto", None, QtGui.QApplication.UnicodeUTF8))
         self.inputb.setText(QtGui.QApplication.translate("form1", "...", None, QtGui.QApplication.UnicodeUTF8))
     def translateEn(self,form1):
-        self.label.setText(QtGui.QApplication.translate("form1", "Input raster", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("form1", "inputbox raster", None, QtGui.QApplication.UnicodeUTF8))
         self.outputb.setText(QtGui.QApplication.translate("form1", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("form1", "Output raster", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setToolTip(QtGui.QApplication.translate("form1", "Reference band from which variances will be calculated to choose subwindow mean.", None, QtGui.QApplication.UnicodeUTF8))
