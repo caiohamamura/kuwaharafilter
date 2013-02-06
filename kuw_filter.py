@@ -184,7 +184,7 @@ class kuw_filter:
             fileInfo = QFileInfo(fileName)
             baseName = fileInfo.baseName()
             iface.addRasterLayer(fileName, baseName)
-        exit(nova.exec_())
+        nova.exec_()
         self.dlg.setCursor(QCursor(Qt.ArrowCursor))
         self.dlg.setEnabled(True)
         self.dlg.close()
