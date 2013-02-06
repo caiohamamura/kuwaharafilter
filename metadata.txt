@@ -12,7 +12,7 @@
 name=Kuwahara Filter
 qgisMinimumVersion=1.0
 description=Applies Kuwahara Filter
-version=0.1
+version=0.2
 author=Caio Hamamura/Laboratório de Silvicultura Urbana - Universidade de São Paulo (campus de Piracicaba)
 email=caiohamamura@gmail.com
 
