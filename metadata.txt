@@ -1,4 +1,4 @@
-# This file contains metadata for your plugin. Beginning
+﻿# This file contains metadata for your plugin. Beginning
 # with version 1.8 this is the preferred way to supply information about a
 # plugin. The current method of embedding metadata in __init__.py will
 # be supported until version 2.0
@@ -10,9 +10,9 @@
 
 [general]
 name=Kuwahara Filter
-qgisMinimumVersion=1.0
+qgisMinimumVersion=1.8
 description=Applies Kuwahara Filter
-version=0.2
+version=0.3
 author=Caio Hamamura/Laboratório de Silvicultura Urbana - Universidade de São Paulo (campus de Piracicaba)
 email=caiohamamura@gmail.com
 
@@ -21,7 +21,12 @@ email=caiohamamura@gmail.com
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-# changelog=
+changelog=
+* Added button to use an input raster that is not loaded in qgis layers.
+* Translated to english.
+* Fixed bugs regarding non reponsive widget during algorithm processing.
+* Code was modified to improve readability
+* Fixed a bug within the algorithm, the mean outputs had the value range 1:256, leading 256 to 0 when transformed to byte, set range to 0:255
 
 # tags are comma separated with spaces allowed
 tags=kuwahara, filter, edge, preserving
