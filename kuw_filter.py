@@ -61,7 +61,6 @@ class kuw_filter:
         self.dlg.run.clicked.connect(self.prefilter)
         self.dlg.outputb.clicked.connect(self.savefname)
         self.dlg.inputb.clicked.connect(self.setinput)
-        self.dlg.lastWindowClosed.connect(self.teste)
     def initGui(self):
         # Create action that will start plugin configuration
         self.action = QAction(QIcon(":/plugins/kuw_filter/icon.png"), \

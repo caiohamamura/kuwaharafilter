@@ -73,10 +73,10 @@ class Ui_form1(object):
         self.mem = QtGui.QLineEdit(form1)
         self.mem.setGeometry(QtCore.QRect(208, 120, 101, 28))
         self.mem.setObjectName(_fromUtf8("mem"))
-        self.checkBox = QtGui.QCheckBox(form1)
-        self.checkBox.setGeometry(QtCore.QRect(100, 158, 171, 17))
-        self.checkBox.setChecked(True)
-        self.checkBox.setObjectName(_fromUtf8("checkBox"))
+        self.addout = QtGui.QCheckBox(form1)
+        self.addout.setGeometry(QtCore.QRect(100, 158, 171, 17))
+        self.addout.setChecked(True)
+        self.addout.setObjectName(_fromUtf8("checkBox"))
         self.inputb = QtGui.QPushButton(form1)
         self.inputb.setGeometry(QtCore.QRect(320, 10, 31, 23))
         self.inputb.setObjectName(_fromUtf8("inputb"))
@@ -100,7 +100,7 @@ class Ui_form1(object):
         self.refb.setText(QtGui.QApplication.translate("form1", "1", None, QtGui.QApplication.UnicodeUTF8))
         self.mem.setToolTip(QtGui.QApplication.translate("form1", "Máxima carga de memória a ser utilizada (o valor é aproximado já que o algoritmo apenas escolhe o número de linhas a serem lidas por vez).", None, QtGui.QApplication.UnicodeUTF8))
         self.mem.setText(QtGui.QApplication.translate("form1", "100", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox.setText(QtGui.QApplication.translate("form1", "Adicionar resultados ao projeto", None, QtGui.QApplication.UnicodeUTF8))
+        self.addout.setText(QtGui.QApplication.translate("form1", "Adicionar resultados ao projeto", None, QtGui.QApplication.UnicodeUTF8))
         self.inputb.setText(QtGui.QApplication.translate("form1", "...", None, QtGui.QApplication.UnicodeUTF8))
 
 import resources
