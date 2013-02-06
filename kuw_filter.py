@@ -153,7 +153,7 @@ class kuw_filter:
             sum2=arr1**2
             sum2=na(na(na(na(na(sum2,nr(sum2,1,1)),nr(sum2,-1,1)),na(nr(nr(sum2,-1,1),-1,0),nr(nr(sum2,-1,1),1,0))),na(nr(nr(sum2,1,1),-1,0),nr(nr(sum2,1,1),1,0))),na(nr(sum2,-1,0),nr(sum2,1,0)))
             sum2 = numpy.uint16(numpy.round((sum2-((sum**2)/9.0))/9.0))
-            sum = numpy.ubyte(numpy.round((sum/9.0)+0.5))
+            sum = numpy.ubyte((sum/9.0)+0.5)
             sum23=nr(sum2,-2,1)
             t=numpy.vstack((sum2.flatten(),sum23.flatten(),nr(sum2,2,0).flatten(),nr(sum23,2,0).flatten()))
             t=t==numpy.min(t,0)
@@ -170,7 +170,7 @@ class kuw_filter:
             arr1 = band[2].ReadAsArray(0, y, xsize, readrows)
             arr1 = numpy.uint32(numpy.vstack((arr4,arr1)))
             arr4 = arr1[readrows:readrows+5,]
-            sum=numpy.ubyte(numpy.round((na(na(na(na(na(arr1,nr(arr1,1,1)),nr(arr1,-1,1)),na(nr(nr(arr1,-1,1),-1,0),nr(nr(arr1,-1,1),1,0))),na(nr(nr(arr1,1,1),-1,0),nr(nr(arr1,1,1),1,0))),na(nr(arr1,-1,0),nr(arr1,1,0))))/9.0)+0.5)
+            sum=numpy.ubyte((na(na(na(na(na(arr1,nr(arr1,1,1)),nr(arr1,-1,1)),na(nr(nr(arr1,-1,1),-1,0),nr(nr(arr1,-1,1),1,0))),na(nr(nr(arr1,1,1),-1,0),nr(nr(arr1,1,1),1,0))),na(nr(arr1,-1,0),nr(arr1,1,0))))/9.0+0.5)
             sum23=nr(sum,-2,1)
             arr1=nr(nr(numpy.ubyte(numpy.reshape(numpy.max((t)*numpy.vstack((sum.flatten(),sum23.flatten(),nr(sum,2,0).flatten(),nr(sum23,2,0).flatten())),0),(readrows+4,-1))),-1,0),1,1)[2:(readrows+2),2:(xsize-2)]
             oband[2].WriteArray(arr1,2,y-2)
