@@ -92,7 +92,7 @@ class Ui_form1(object):
         self.label_3.setText(QtGui.QApplication.translate("form1", "Banda de referência", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setToolTip(QtGui.QApplication.translate("form1", "Máxima carga de memória a ser utilizada (o valor é aproximado já que o algoritmo apenas escolhe o número de linhas a serem lidas por vez).", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("form1", "Máximo uso da memoria (MB)", None, QtGui.QApplication.UnicodeUTF8))
-        self.run.setText(QtGui.QApplication.translate("form1", "Run!", None, QtGui.QApplication.UnicodeUTF8))
+        self.run.setText(QtGui.QApplication.translate("form1", "Rodar!", None, QtGui.QApplication.UnicodeUTF8))
         self.output.setPlaceholderText(QtGui.QApplication.translate("form1", "<temporary file>", None, QtGui.QApplication.UnicodeUTF8))
         self.refb.setToolTip(QtGui.QApplication.translate("form1", "Banda de referência, sobre a qual serão calculadas as variâncias para escolher a subjanela a ser utilizada.", None, QtGui.QApplication.UnicodeUTF8))
         self.refb.setText(QtGui.QApplication.translate("form1", "1", None, QtGui.QApplication.UnicodeUTF8))
