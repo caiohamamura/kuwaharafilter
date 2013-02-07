@@ -20,7 +20,7 @@
  ***************************************************************************/
 """
 from PyQt4.QtCore import QFileInfo, Qt
-from PyQt4.QtGui import QFileDialog, QMessageBox, QCursor
+from PyQt4.QtGui import QFileDialog, QMessageBox, QCursor, QApplication
 from time import clock
 from qgis.core import QgsMapLayerRegistry
 from PyQt4 import QtCore, QtGui
@@ -55,7 +55,7 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
         else:
             self.layerPath = str(self.inputbox.currentText())
     def inputb_clicked(self):
-        self.layerPath = QFileDialog.getOpenFileName(self, 'Selecione o arquivo', '', 'TIFF (*.tif);; All files (*.*);;JPEG (*.jpg, *.jpeg)')
+        self.layerPath = QFileDialog.getOpenFileName(self, QApplication.translate('kuw_filterdialog', 'Select file', None, QApplication.UnicodeUTF8), '', QApplication.translate('kuw_filterdialog','TIFF (*.tif);; All files (*.*);;JPEG (*.jpg, *.jpeg)', None, QApplication.UnicodeUTF8))
         if self.inputbox != '':
             self.inputbox.addItem(self.layerPath, '')
             self.inputbox.setCurrentIndex(self.inputbox.count()-1)
@@ -71,7 +71,7 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
         memuse = int(self.mem.text())
         self.setCursor(QCursor(Qt.WaitCursor))
         if dofilter(self, input, output, refb, memuse) :
-            self.msgbox('Completado com sucesso\n em '+str(int((clock()-start)/3600))+'h'+str(int((clock()-start)/60))+'m'+str((0.5+clock()-start)%60)[0:5]+'s')
+            self.msgbox(QApplication.translate('kuw_filterdialog','Time elapsed:\n ', None, QApplication.UnicodeUTF8)+str(int((clock()-start)/3600))+'h'+str(int((clock()-start)/60))+'m'+str((0.5+clock()-start)%60)[0:5]+'s')
             if self.addout.isChecked():
                 fileName = str(output)
                 fileInfo = QFileInfo(fileName)
@@ -83,7 +83,7 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
     def outputb_clicked(self):
         if len(self.outdir) == 0 :
             if len(self.layerPath) == 0:
-                self.msgbox('Select input file first', QMessageBox.Warning)
+                self.msgbox(QApplication.translate('kuw_filterdialog', 'Select input file first', None, QApplication.UnicodeUTF8), QMessageBox.Warning)
                 return False
             self.i=0
             while self.layerPath.find('\\', self.i) != -1:
@@ -95,7 +95,7 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
         else:
             self.outpath = self.outdir
             
-        self.output.setText(QFileDialog.getSaveFileName(self, 'Select output file', self.outdir, 'TIFF (*.tif);; All files (*.*);;JPEG (*.jpg, *.jpeg)'))
+        self.output.setText(QFileDialog.getSaveFileName(self, QApplication.translate('kuw_filterdialog','Select output file', None, QApplication.UnicodeUTF8), self.outdir, 'TIFF (*.tif);; '+QApplication.translate('kuw_filterdialog', 'All files', None, QApplication.UnicodeUTF8)+' (*.*);;JPEG (*.jpg, *.jpeg)'))
         
         if len(str(self.output.text()))>0:
             self.i = 0

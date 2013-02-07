@@ -20,7 +20,7 @@
  ***************************************************************************/
 """
 # Import the PyQt and QGIS libraries
-from PyQt4.QtCore import QFileInfo, QSettings, QObject, SIGNAL, Qt, QCoreApplication
+from PyQt4.QtCore import QFileInfo, QSettings, QObject, SIGNAL, Qt, QCoreApplication, QTranslator, qVersion
 from PyQt4.QtGui import QCursor, QMessageBox, QAction, QIcon, QFileDialog, QApplication
 from qgis.utils import iface
 from qgis.core import QgsMapLayerRegistry, QgsMapLayer, QgsApplication
@@ -42,7 +42,10 @@ class kuw_filter:
         self.plugin_dir = QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/kuw_filter"
         # initialize locale
         localePath = ""
-        locale = QSettings().value("locale/userLocale").toString()[0:2]
+        locale = QSettings().value("locale/userLocale").toString()[0:5]
+        asas = QMessageBox()
+        asas.setText(locale)
+        asas.exec_()
 
         if QFileInfo(self.plugin_dir).exists():
             localePath = self.plugin_dir + "/i18n/kuw_filter_" + locale + ".qm"
@@ -59,7 +62,7 @@ class kuw_filter:
     def initGui(self):
         # Create action that will start plugin configuration
         self.action = QAction(QIcon(":/plugins/kuw_filter/icon.png"), \
-            "Kuwahara Filter", self.iface.mainWindow())
+            QCoreApplication.translate("kuw_filter", "Kuwahara Filter", None, QApplication.UnicodeUTF8), self.iface.mainWindow())
         # connect the action to the run method
         QObject.connect(self.action, SIGNAL("triggered()"), self.run)
 
