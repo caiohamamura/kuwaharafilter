@@ -36,7 +36,7 @@
     <message>
         <location filename="form.py" line="94"/>
         <source>Max memory usage (MB)</source>
-        <translation></translation>
+        <translation>Uso maximo da memória (MB)</translation>
     </message>
     <message>
         <location filename="form.py" line="99"/>
