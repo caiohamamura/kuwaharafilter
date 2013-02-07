@@ -77,7 +77,6 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
                 fileInfo = QFileInfo(fileName)
                 baseName = fileInfo.baseName()
                 iface.addRasterLayer(fileName, baseName)
-            nova.exec_()
         self.setCursor(QCursor(Qt.ArrowCursor))
         self.setEnabled(True)
         self.close()
