@@ -43,10 +43,6 @@ class kuw_filter:
         # initialize locale
         localePath = ""
         locale = QSettings().value("locale/userLocale").toString()[0:5]
-        asas = QMessageBox()
-        asas.setText(locale)
-        asas.exec_()
-
         if QFileInfo(self.plugin_dir).exists():
             localePath = self.plugin_dir + "/i18n/kuw_filter_" + locale + ".qm"
 
