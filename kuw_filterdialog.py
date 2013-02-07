@@ -35,10 +35,7 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
         self.outdir = ''
         self.ilayers = QgsMapLayerRegistry.instance()
         super(kuw_filterDialog, self).__init__(parent)
-<<<<<<< HEAD
         self.layerPath = ''
-=======
->>>>>>> 6958c30742340e3af3114be6e8eff336e54c4f83
         self.setupUi(self)
         self.inputbox.currentIndexChanged.connect(self.input_changed)
         self.inputb.clicked.connect(self.inputb_clicked)
@@ -46,16 +43,10 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
         self.outputb.clicked.connect(self.outputb_clicked)
         
     @QtCore.pyqtSlot()
-<<<<<<< HEAD
     def msgbox(self, texto, icon=QMessageBox.Information):
         msg = QMessageBox()
         msg.setText(str(texto))
         msg.setIcon(icon)
-=======
-    def msgbox(self, texto):
-        msg = QMessageBox()
-        msg.setText(str(texto))
->>>>>>> 6958c30742340e3af3114be6e8eff336e54c4f83
         msg.exec_()
     def input_changed(self):
         self.layerID = (self.inputbox.itemData(self.inputbox.currentIndex()).toString())
@@ -80,12 +71,7 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
         memuse = int(self.mem.text())
         self.setCursor(QCursor(Qt.WaitCursor))
         if dofilter(self, input, output, refb, memuse) :
-<<<<<<< HEAD
             self.msgbox('Completado com sucesso\n em '+str(int((clock()-start)/3600))+'h'+str(int((clock()-start)/60))+'m'+str((0.5+clock()-start)%60)[0:5]+'s')
-=======
-            nova = QMessageBox(self)
-            nova.setText('Completado com sucesso\n em '+str(int((clock()-start)/3600))+'h'+str(int((clock()-start)/60))+'m'+str((0.5+clock()-start)%60)[0:5]+'s')
->>>>>>> 6958c30742340e3af3114be6e8eff336e54c4f83
             if self.addout.isChecked():
                 fileName = str(output)
                 fileInfo = QFileInfo(fileName)
@@ -97,7 +83,6 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
         self.close()
     def outputb_clicked(self):
         if len(self.outdir) == 0 :
-<<<<<<< HEAD
             if len(self.layerPath) == 0:
                 self.msgbox('Select input file first', QMessageBox.Warning)
                 return False
@@ -107,11 +92,6 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
             if self.i == 0:
                 while self.layerPath.find('/', self.i) != -1:
                     self.i = self.layerPath.find('/', self.i)+1
-=======
-            self.i=0
-            while self.layerPath.find('\\', self.i) != -1:
-                self.i = self.layerPath.find('\\', self.i)+1
->>>>>>> 6958c30742340e3af3114be6e8eff336e54c4f83
             self.outdir = self.layerPath[0:self.i]
         else:
             self.outpath = self.outdir
