@@ -57,9 +57,14 @@
 <context>
     <name>kuw_filter</name>
     <message>
-        <location filename="kuw_filter.py" line="64"/>
+        <location filename="kuw_filter.py" line="60"/>
         <source>Kuwahara Filter</source>
         <translation>Filtro Kuwahara</translation>
+    </message>
+    <message>
+        <location filename="kuw_filter.py" line="70"/>
+        <source>&amp;Kuwahara Filter</source>
+        <translation>&amp;Filtro Kuwahara</translation>
     </message>
 </context>
 <context>

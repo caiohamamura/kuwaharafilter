@@ -64,10 +64,10 @@ class kuw_filter:
 
         # Add toolbar button and menu item
         self.iface.addToolBarIcon(self.action)
-        self.iface.addPluginToMenu(u"&Kuwahara Filter", self.action)
+        self.iface.addPluginToMenu(QCoreApplication.translate("kuw_filter","&Kuwahara Filter", None, QApplication.UnicodeUTF8), self.action)
     def unload(self):
         # Remove the plugin menu item and icon
-        self.iface.removePluginMenu(u"&Kuwahara Filter", self.action)
+        self.iface.removePluginMenu(QCoreApplication.translate("kuw_filter","&Kuwahara Filter", None, QApplication.UnicodeUTF8), self.action)
         self.iface.removeToolBarIcon(self.action)
     # run method that performs all the real work
     def run(self):
