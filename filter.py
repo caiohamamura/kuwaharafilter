@@ -4,7 +4,7 @@ import gdal
 import numpy
 import sys
 from PyQt4.QtCore import QCoreApplication
-
+#
 def dofilter(dlg, input, output, refband=1, memuse=100):
     try:
         from osgeo import gdal

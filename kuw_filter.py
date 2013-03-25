@@ -4,7 +4,7 @@
  kuw_filter
                                  A QGIS plugin
  Applies Kuwahara Filter
-                              -------------------
+             #                 -------------------
         begin                : 2013-02-03
         copyright            : (C) 2013 by Caio Hamamura
         email                : caiohamamura@gmail.com
