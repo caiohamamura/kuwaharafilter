@@ -1,4 +1,4 @@
-Plugin Builder Results
+Plugin Builder Result
 
 Your plugin kuw_filter was created in:
     D:\Caio\Kuwahara\kuw_filter
