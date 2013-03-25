@@ -64,7 +64,12 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
         self.setEnabled(False)
         input = self.layerPath
         if str(self.output.text()) == '':
-            output = os.environ['temp']+'out'+str(int(clock()*10000))+'.tif'
+            try:
+                output = os.environ['temp']+'out'+str(int(clock()*10000))+'.tif'
+            except:
+                if os.access('/tmp/kuw_filter', os.F_OK)==False:
+                    os.mkdir('/tmp/kuw_filter')
+                output = '/tmp/kuw_filter/out'+str(int(clock()*10000))+'.tif'
         else:
            output = str(self.output.text())
         refb = int(self.refb.text())

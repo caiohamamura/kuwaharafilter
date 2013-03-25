@@ -31,7 +31,7 @@ def description():
 
 
 def version():
-    return "Version 0.1"
+    return "Version 1.0"
 
 
 def icon():
@@ -39,7 +39,7 @@ def icon():
 
 
 def qgisMinimumVersion():
-    return "1.0"
+    return "1.8.0"
 
 def author():
     return "Caio Hamamura/Laboratório de Silvicultura Urbana - Universidade de São Paulo (campus de Piracicaba)"

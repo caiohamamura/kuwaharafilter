@@ -12,7 +12,7 @@
 name=Kuwahara Filter
 qgisMinimumVersion=1.8
 description=Applies Kuwahara Filter
-version=0.4
+version=1.0
 author=Caio Hamamura/Laboratório de Silvicultura Urbana - Universidade de São Paulo (campus de Piracicaba)
 email=caiohamamura@gmail.com
 
@@ -21,7 +21,7 @@ email=caiohamamura@gmail.com
 # Optional items:
 
 # Uncomment the following line and add your changelog entries:
-# changelog=1. Added button to use an input raster that is not loaded in qgis layers; 2. Translated to english; 3. Fixed bugs regarding non reponsive widget during algorithm processing; 4. Code was modified to improve readability; 5. Fixed a bug within the algorithm, the mean outputs had the value range 1:256, leading 256 to 0 when transformed to byte, set range to 0:255 6. Fixed bug when clicking output browse button before assigning a input file.
+# changelog=1. Added support for varible number of bands (only 3 bands supported before); 2. Support for linux temporary file.
 
 # tags are comma separated with spaces allowed
 tags=kuwahara, filter, edge, preserving
