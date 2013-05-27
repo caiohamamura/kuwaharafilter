@@ -51,9 +51,9 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
     def input_changed(self):
         self.layerID = (self.inputbox.itemData(self.inputbox.currentIndex()).toString())
         if len(self.layerID) != 0:
-            self.layerPath = str(self.ilayers.mapLayer(self.layerID).source().toUtf8())
+            self.layerPath = str(self.ilayers.mapLayer(self.layerID).source().toAscii())
         else:
-            self.layerPath = str(self.inputbox.currentText().toUtf8())
+            self.layerPath = str(self.inputbox.currentText().toAscii())
     def inputb_clicked(self):
         self.layerPath = QFileDialog.getOpenFileName(self, QApplication.translate('kuw_filterdialog', 'Select file', None, QApplication.UnicodeUTF8), '', QApplication.translate('kuw_filterdialog','TIFF (*.tif);; All files (*.*);;JPEG (*.jpg, *.jpeg)', None, QApplication.UnicodeUTF8))
         if self.inputbox != '':
@@ -63,7 +63,7 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
         start = clock()
         self.setEnabled(False)
         input = self.layerPath
-        if str(self.output.text()) == '':
+        if str(self.output.text().toAscii()) == '':
             try:
                 output = os.environ['temp']+'out'+str(int(clock()*10000))+'.tif'
             except:
@@ -71,7 +71,7 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
                     os.mkdir('/tmp/kuw_filter')
                 output = '/tmp/kuw_filter/out'+str(int(clock()*10000))+'.tif'
         else:
-           output = str(self.output.text())
+           output = str(self.output.text().toAscii())
         refb = int(self.refb.text())
         memuse = int(self.mem.text())
         self.setCursor(QCursor(Qt.WaitCursor))
@@ -102,8 +102,8 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
             
         self.output.setText(QFileDialog.getSaveFileName(self, QApplication.translate('kuw_filterdialog','Select output file', None, QApplication.UnicodeUTF8), self.outdir, 'TIFF (*.tif);; '+QApplication.translate('kuw_filterdialog', 'All files', None, QApplication.UnicodeUTF8)+' (*.*);;JPEG (*.jpg, *.jpeg)'))
         
-        if len(str(self.output.text()))>0:
+        if len(str(self.output.text().toAscii()))>0:
             self.i = 0
-            while str(self.output.text()).find('/', self.i) != -1:
-                self.i = str(self.output.text()).find('/', self.i)+1
-            self.outdir = str(self.output.text())[0:self.i]   
+            while str(self.output.text().toAscii()).find('/', self.i) != -1:
+                self.i = str(self.output.text().toAscii()).find('/', self.i)+1
+            self.outdir = str(self.output.text().toAscii())[0:self.i]   

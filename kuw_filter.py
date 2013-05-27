@@ -85,5 +85,5 @@ class kuw_filter:
             self.dlg.inputbox.clear()
             for (key, layer) in self.ilayers.mapLayers().iteritems():
                 if layer.type() == 1:
-                    self.dlg.inputbox.addItem(str(layer.name().toUtf8()), key)
+                    self.dlg.inputbox.addItem(str(layer.name().toAscii()), key)
             pass
