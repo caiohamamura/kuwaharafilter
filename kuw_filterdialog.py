@@ -51,9 +51,9 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
     def input_changed(self):
         self.layerID = (self.inputbox.itemData(self.inputbox.currentIndex()).toString())
         if len(self.layerID) != 0:
-            self.layerPath = str(self.ilayers.mapLayer(self.layerID).source())
+            self.layerPath = str(self.ilayers.mapLayer(self.layerID).source().toUtf8())
         else:
-            self.layerPath = str(self.inputbox.currentText())
+            self.layerPath = str(self.inputbox.currentText().toUtf8())
     def inputb_clicked(self):
         self.layerPath = QFileDialog.getOpenFileName(self, QApplication.translate('kuw_filterdialog', 'Select file', None, QApplication.UnicodeUTF8), '', QApplication.translate('kuw_filterdialog','TIFF (*.tif);; All files (*.*);;JPEG (*.jpg, *.jpeg)', None, QApplication.UnicodeUTF8))
         if self.inputbox != '':
