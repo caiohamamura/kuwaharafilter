@@ -50,6 +50,8 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
         msg.exec_()
     def input_changed(self):
         self.layerID = (self.inputbox.itemData(self.inputbox.currentIndex()).toString())
+        if self.layerID == None:
+            return
         if len(self.layerID) != 0:
             self.layerPath = str(self.ilayers.mapLayer(self.layerID).source().toAscii())
         else:
