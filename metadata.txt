@@ -1,19 +1,9 @@
-# This file contains metadata for your plugin. Beginning
-# with version 1.8 this is the preferred way to supply information about a
-# plugin. The current method of embedding metadata in __init__.py will
-# be supported until version 2.0
-
-# This file should be included when you package your plugin.
-#
-# Mandatory items:
-
-
 [general]
 name=Kuwahara Filter
-qgisMinimumVersion=1.8
+qgisMinimumVersion=2.0
 description=Applies Kuwahara Filter
-version=1.0
-author=Caio Hamamura - Laboratório de Silvicultura Urbana - Universidade de São Paulo (campus de Piracicaba)
+version=1.1.1
+author=Caio Hamamura - Laboratorio de Silvicultura Urbana - Universidade de Sao Paulo (campus de Piracicaba)
 email=caiohamamura@gmail.com
 
 # end of mandatory metadata
@@ -22,6 +12,8 @@ email=caiohamamura@gmail.com
 
 # Uncomment the following line and add your changelog entries:
 changelog=
+    1.1.1 Fixed small bug when reopening the plugin
+	1.1 Refactored for Qgis 2.0
 	1.0.2 Fixed special character handling
 	1.0.1 Support for linux temporary file 
 	1.0 Added support for varible number of bands (only 3 bands supported before)
@@ -32,16 +24,14 @@ changelog=
 	0.3 Fixed bugs regarding non reponsive widget during algorithm processing
 	0.2.1 Translated to english
 	0.2. Added button to use an input raster that is not loaded in qgis layers
-# tags are comma separated with spaces allowed
+
+
 tags=kuwahara, filter, edge, preserving
 
-homepage=https://github.com/caiohamamura/kuwaharafilter/wiki
 tracker=https://github.com/caiohamamura/kuwaharafilter/issues
+homepage=https://github.com/caiohamamura/kuwaharafilter/wiki
 repository=https://github.com/caiohamamura/kuwaharafilter
-icon=icon.png
-# experimental flag
+
 experimental=False
 
-# deprecated flag (applies to the whole plugin, not just a single version
-deprecated=False
-
+icon=icon.png

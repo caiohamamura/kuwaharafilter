@@ -42,7 +42,7 @@ class kuw_filter:
         self.plugin_dir = QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + "/python/plugins/kuw_filter"
         # initialize locale
         localePath = ""
-        locale = QSettings().value("locale/userLocale").toString()[0:5]
+        locale = QSettings().value("locale/userLocale")[0:5]
         if QFileInfo(self.plugin_dir).exists():
             localePath = self.plugin_dir + "/i18n/kuw_filter_" + locale + ".qm"
 
@@ -85,5 +85,5 @@ class kuw_filter:
             self.dlg.inputbox.clear()
             for (key, layer) in self.ilayers.mapLayers().iteritems():
                 if layer.type() == 1:
-                    self.dlg.inputbox.addItem(str(layer.name().toAscii()), key)
+                    self.dlg.inputbox.addItem(unicode(layer.name()), key)
             pass

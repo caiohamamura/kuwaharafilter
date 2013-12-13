@@ -21,32 +21,6 @@
  This script initializes the plugin, making it known to QGIS.
 """
 
-
-def name():
-    return "Kuwahara Filter"
-
-
-def description():
-    return "Applies Kuwahara Filter"
-
-
-def version():
-    return "Version 1.0"
-
-
-def icon():
-    return "icon.png"
-
-
-def qgisMinimumVersion():
-    return "1.8.0"
-
-def author():
-    return "Caio Hamamura/Laboratório de Silvicultura Urbana - Universidade de São Paulo (campus de Piracicaba)"
-
-def email():
-    return "caiohamamura@gmail.com"
-
 def classFactory(iface):
     # load kuw_filter class from file kuw_filter
     from kuw_filter import kuw_filter

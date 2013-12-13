@@ -45,17 +45,17 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
     @QtCore.pyqtSlot()
     def msgbox(self, texto, icon=QMessageBox.Information):
         msg = QMessageBox()
-        msg.setText(str(texto))
+        msg.setText(unicode(texto))
         msg.setIcon(icon)
         msg.exec_()
     def input_changed(self):
-        self.layerID = (self.inputbox.itemData(self.inputbox.currentIndex()).toString())
+        self.layerID = (self.inputbox.itemData(self.inputbox.currentIndex()))
         if self.layerID == None:
             return
         if len(self.layerID) != 0:
-            self.layerPath = str(self.ilayers.mapLayer(self.layerID).source().toAscii())
+            self.layerPath = unicode(self.ilayers.mapLayer(self.layerID).source())
         else:
-            self.layerPath = str(self.inputbox.currentText().toAscii())
+            self.layerPath = unicode(self.inputbox.currentText())
     def inputb_clicked(self):
         self.layerPath = QFileDialog.getOpenFileName(self, QApplication.translate('kuw_filterdialog', 'Select file', None, QApplication.UnicodeUTF8), '', QApplication.translate('kuw_filterdialog','TIFF (*.tif);; All files (*.*);;JPEG (*.jpg, *.jpeg)', None, QApplication.UnicodeUTF8))
         if self.inputbox != '':
@@ -65,22 +65,22 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
         start = clock()
         self.setEnabled(False)
         input = self.layerPath
-        if str(self.output.text().toAscii()) == '':
+        if unicode(self.output.text()) == '':
             try:
-                output = os.environ['temp']+'out'+str(int(clock()*10000))+'.tif'
+                output = os.environ['temp']+'out'+unicode(int(clock()*10000))+'.tif'
             except:
                 if os.access('/tmp/kuw_filter', os.F_OK)==False:
                     os.mkdir('/tmp/kuw_filter')
-                output = '/tmp/kuw_filter/out'+str(int(clock()*10000))+'.tif'
+                output = '/tmp/kuw_filter/out'+unicode(int(clock()*10000))+'.tif'
         else:
-           output = str(self.output.text().toAscii())
+           output = unicode(self.output.text())
         refb = int(self.refb.text())
         memuse = int(self.mem.text())
         self.setCursor(QCursor(Qt.WaitCursor))
         if dofilter(self, input, output, refb, memuse) :
-            self.msgbox(QApplication.translate('kuw_filterdialog','Time elapsed:\n ', None, QApplication.UnicodeUTF8)+str(int((clock()-start)/3600))+'h'+str(int((clock()-start)/60))+'m'+str((0.5+clock()-start)%60)[0:5]+'s')
+            self.msgbox(QApplication.translate('kuw_filterdialog','Time elapsed:\n ', None, QApplication.UnicodeUTF8)+unicode(int((clock()-start)/3600))+'h'+unicode(int((clock()-start)/60))+'m'+unicode((0.5+clock()-start)%60)[0:5]+'s')
             if self.addout.isChecked():
-                fileName = str(output)
+                fileName = unicode(output)
                 fileInfo = QFileInfo(fileName)
                 baseName = fileInfo.baseName()
                 iface.addRasterLayer(fileName, baseName)
@@ -104,8 +104,8 @@ class kuw_filterDialog(QtGui.QMainWindow, Ui_form1):
             
         self.output.setText(QFileDialog.getSaveFileName(self, QApplication.translate('kuw_filterdialog','Select output file', None, QApplication.UnicodeUTF8), self.outdir, 'TIFF (*.tif);; '+QApplication.translate('kuw_filterdialog', 'All files', None, QApplication.UnicodeUTF8)+' (*.*);;JPEG (*.jpg, *.jpeg)'))
         
-        if len(str(self.output.text().toAscii()))>0:
+        if len(unicode(self.output.text()))>0:
             self.i = 0
-            while str(self.output.text().toAscii()).find('/', self.i) != -1:
-                self.i = str(self.output.text().toAscii()).find('/', self.i)+1
-            self.outdir = str(self.output.text().toAscii())[0:self.i]   
+            while unicode(self.output.text()).find('/', self.i) != -1:
+                self.i = unicode(self.output.text()).find('/', self.i)+1
+            self.outdir = unicode(self.output.text())[0:self.i]   
