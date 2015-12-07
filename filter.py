@@ -1,6 +1,4 @@
 import gdal, numpy, sys
-import gdal
-import gdal
 import numpy
 import sys
 from PyQt4.QtCore import QCoreApplication
