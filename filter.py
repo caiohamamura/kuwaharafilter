@@ -37,7 +37,7 @@ def dofilter(dlg, input, output, refband=1, memuse=100):
     driver = tif.GetDriver()
     xsize = tif.RasterXSize
     ysize = tif.RasterYSize
-	data_type = tif.GetRasterBand(1).DataType
+    data_type = tif.GetRasterBand(1).DataType
     out = gdal.GetDriverByName('GTiff').Create(unicode(output), xsize, ysize, nbands, data_type)
     try:
         out.SetGeoTransform(tif.GetGeoTransform())
