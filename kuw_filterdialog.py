@@ -26,7 +26,7 @@ from qgis.PyQt.QtWidgets import QFileDialog, QMessageBox, QApplication, QMainWin
 from qgis.PyQt.QtGui import QCursor
 from time import clock
 import datetime as dt
-from qgis.core import QgsProject
+from qgis.core import QgsProject, QgsMapLayerProxyModel
 from qgis.PyQt import QtCore, QtGui
 from .dialog import Ui_Form
 from .filter import dofilter as doFilter
@@ -54,6 +54,7 @@ class kuw_filterDialog(QMainWindow, Ui_Form):
         self.setupUi(self)
         self.run.clicked.connect(self.run_clicked)
         self.outputb.clicked.connect(self.outputb_clicked)
+        self.inputbox.setFilters(QgsMapLayerProxyModel.RasterLayer)
         
     @QtCore.pyqtSlot()
     def msgbox(self, texto, icon=QMessageBox.Information):
