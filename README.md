@@ -31,7 +31,7 @@ python3 -m pip install pyopencl
 
 ## Windows
 
-The best way to install pyopencl in windows is to download the compiled wheels from https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyopencl, then you just need to execute the downloaded wheel.
+The best way to install pyopencl in windows is to download the compiled wheels from https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyopencl, then you just need to execute the downloaded wheel from the OSGeo4W Shell.
 
 ```
 python3 -m pip install pyopencl‑[version]‑win_[architecture].whl
