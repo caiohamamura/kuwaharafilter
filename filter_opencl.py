@@ -7,9 +7,15 @@ import threading
 from time import time
 import queue
 import math
-from qgis.PyQt.QtCore import QCoreApplication
 import pyopencl as cl
 from pyopencl import array
+
+QCoreApplication = None
+try:
+    from qgis.PyQt.QtCore import QCoreApplication
+except:
+    pass
+
 
 
 nIteration = 0
@@ -78,7 +84,11 @@ class RasterWriter (threading.Thread):
             threadLock.acquire()
             oBand.WriteArray(array,xOffset,yOffset)
             nIteration += 1
-            self.dlg.progressBar.setValue(int(100*nIteration/MAX_ITERATIONS))
+            progress = str(int(100*nIteration/MAX_ITERATIONS))
+            if (self.dlg == None):
+                print('\r'+progress,end='')
+            else:
+                self.dlg.progressBar.setValue(progress)
             threadLock.release()
             item = bufferResult.get()
 
@@ -242,7 +252,7 @@ def dofilter2(dlg, input, output, memuse=512):
     n = 0
     for y in range(2, Y_SIZE, READROWS):
         for i in range(0, N_BANDS):
-            QCoreApplication.processEvents()
+            if (QCoreApplication != None): QCoreApplication.processEvents()
             if Y_SIZE-y < READROWS : readrows = Y_SIZE-y-2
             thread0 = ArrayLoader(band[i], y, xsize, readrows, tif_numpy_type, oband[i])
             thread0.start()
@@ -259,7 +269,7 @@ def dofilter2(dlg, input, output, memuse=512):
 
 
 
-# if __name__ == "__main__":
-#     entrada = sys.argv[1]
-#     saida = sys.argv[2]
-#     dofilter(entrada, saida)
+if __name__ == "__main__":
+    entrada = sys.argv[1]
+    saida = sys.argv[2]
+    dofilter2(None, entrada, saida)
