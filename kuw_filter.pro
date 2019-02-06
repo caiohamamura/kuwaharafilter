@@ -1,6 +1,6 @@
 SOURCES = __init__.py \
-          filter.py \
-		  form.py \
+          filter_opencl.py \
+		  dialog.py \
 		  kuw_filter.py \
 		  kuw_filterdialog.py \
 		  resources.py

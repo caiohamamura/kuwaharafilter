@@ -1,10 +1,12 @@
 [general]
 name=Kuwahara Filter
-qgisMinimumVersion=2.0
+qgisMinimumVersion=3.0
 description=Applies Kuwahara Filter
-version=1.2.0
+version=2.1
 author=Caio Hamamura - Laboratorio de Silvicultura Urbana - Universidade de Sao Paulo (campus de Piracicaba)
 email=caiohamamura@gmail.com
+
+about=Applies Kuwahara Filter
 
 # end of mandatory metadata
 
@@ -12,6 +14,8 @@ email=caiohamamura@gmail.com
 
 # Uncomment the following line and add your changelog entries:
 changelog=
+	2.1 Added support for opencl
+    2.0 Refator for QGIS 3.0
     1.1.1 Fixed small bug when reopening the plugin
 	1.1 Refactored for Qgis 2.0
 	1.0.2 Fixed special character handling

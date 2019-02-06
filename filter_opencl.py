@@ -1,11 +1,16 @@
+from __future__ import print_function
+from builtins import zip
+from builtins import range
 import gdal, numpy, sys
-import pyopencl as cl
-from pyopencl import array
 import numpy as np
 import threading
 from time import time
 import queue
 import math
+from qgis.PyQt.QtCore import QCoreApplication
+import pyopencl as cl
+from pyopencl import array
+
 
 nIteration = 0
 isLoadingArr1 = True
@@ -62,8 +67,9 @@ class GPUCalculator (threading.Thread):
 
 
 class RasterWriter (threading.Thread):
-    def __init__(self):
+    def __init__(self, dlg):
         threading.Thread.__init__(self)
+        self.dlg = dlg
     def run(self):
         global bufferResult, threadLock, nIteration, MAX_ITERATIONS
         item = bufferResult.get()
@@ -72,7 +78,7 @@ class RasterWriter (threading.Thread):
             threadLock.acquire()
             oBand.WriteArray(array,xOffset,yOffset)
             nIteration += 1
-            print(int(100*nIteration/MAX_ITERATIONS))
+            self.dlg.progressBar.setValue(int(100*nIteration/MAX_ITERATIONS))
             threadLock.release()
             item = bufferResult.get()
 
@@ -104,7 +110,7 @@ C_TYPES = {
     7: "double"
 }
 
-def dofilter(input, output, memuse=512):
+def dofilter2(dlg, input, output, memuse=512):
     global isLoadingArr1, arrs, N_BANDS, READROWS, Y_SIZE, bufferResult, MAX_ITERATIONS, buffer
     start_time = time()    
     try:
@@ -222,10 +228,10 @@ def dofilter(input, output, memuse=512):
 
     ## Step #7. Create a command queue for the target device.
     queues = [cl.CommandQueue(context) for context in contexts]
-    GPUCalculatorInputs = zip(programs, contexts, queues)
+    GPUCalculatorInputs = list(zip(programs, contexts, queues))
     workerExec = [GPUCalculator(program, context, queue) for (program, context, queue) in GPUCalculatorInputs]
     [i.start() for i in workerExec]
-    workerWriter = RasterWriter()
+    workerWriter = RasterWriter(dlg)
     workerWriter.start()
     nr=numpy.roll
     READROWS = int((((memuse-67)*48036)/xsize)/2)
@@ -236,6 +242,7 @@ def dofilter(input, output, memuse=512):
     n = 0
     for y in range(2, Y_SIZE, READROWS):
         for i in range(0, N_BANDS):
+            QCoreApplication.processEvents()
             if Y_SIZE-y < READROWS : readrows = Y_SIZE-y-2
             thread0 = ArrayLoader(band[i], y, xsize, readrows, tif_numpy_type, oband[i])
             thread0.start()
@@ -248,13 +255,11 @@ def dofilter(input, output, memuse=512):
     tif = None
     del out
     del tif
-    elapsed_time = time() - start_time
-    print(elapsed_time)
     return True
 
 
 
-if __name__ == "__main__":
-    entrada = sys.argv[1]
-    saida = sys.argv[2]
-    dofilter(entrada, saida)
+# if __name__ == "__main__":
+#     entrada = sys.argv[1]
+#     saida = sys.argv[2]
+#     dofilter(entrada, saida)

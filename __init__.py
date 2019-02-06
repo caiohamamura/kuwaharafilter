@@ -20,8 +20,9 @@
  ***************************************************************************/
  This script initializes the plugin, making it known to QGIS.
 """
+from __future__ import absolute_import
 
 def classFactory(iface):
     # load kuw_filter class from file kuw_filter
-    from kuw_filter import kuw_filter
+    from .kuw_filter import kuw_filter
     return kuw_filter(iface)

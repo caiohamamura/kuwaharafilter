@@ -1,5 +1,7 @@
+from builtins import str
+from builtins import range
 import gdal, numpy, sys
-from PyQt4.QtCore import QCoreApplication
+from qgis.PyQt.QtCore import QCoreApplication
 
 NUMPY_TYPES = {
     1: numpy.ubyte,
@@ -32,13 +34,13 @@ def dofilter(dlg, input, output, refband=1, memuse=100):
     w2 = (w+1)/2
     refband=int(refband)
     memuse=int(memuse)
-    tif = gdal.Open(unicode(input), GA_ReadOnly)
+    tif = gdal.Open(str(input), GA_ReadOnly)
     nbands = tif.RasterCount
     driver = tif.GetDriver()
     xsize = tif.RasterXSize
     ysize = tif.RasterYSize
     data_type = tif.GetRasterBand(1).DataType
-    out = gdal.GetDriverByName('GTiff').Create(unicode(output), xsize, ysize, nbands, data_type)
+    out = gdal.GetDriverByName('GTiff').Create(str(output), xsize, ysize, nbands, data_type)
     try:
         out.SetGeoTransform(tif.GetGeoTransform())
         out.SetProjection(tif.GetProjection())
