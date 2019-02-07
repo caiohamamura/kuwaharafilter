@@ -1,5 +1,13 @@
 cSrc="""
+#define IN_DATA_TYPE {0}
 #define ISFLOAT {1}
+#if (ISFLOAT == 1)
+    #define ROUNDOFFSET 
+#else
+    #define ROUNDOFFSET +0.5
+#endif
+
+#define SMALLERVAR(X) tmp=subwindowStatistics[X];if (tmp.var < resultStats.var) resultStats = tmp
 
 typedef struct  {{
     unsigned char count;
@@ -7,69 +15,17 @@ typedef struct  {{
     double var;
 }} countVarMeanStruct;
 
-typedef struct  {{
-    double mean;
-    double var;
-}} varMeanStruct;
-
 // Welford's Online algorithm
-countVarMeanStruct update(countVarMeanStruct existingAggregate, {0} newValue) {{
+void update(countVarMeanStruct *existingAggregate, IN_DATA_TYPE newValue) {{
     double val = (double)newValue;
-    existingAggregate.count++;
-    double delta = val - existingAggregate.mean;
-    existingAggregate.mean += delta / existingAggregate.count;
-    existingAggregate.var += (val - existingAggregate.mean) * delta;
-    return existingAggregate;
+    existingAggregate->count++;
+    double delta = val - existingAggregate->mean;
+    existingAggregate->mean += delta / existingAggregate->count;
+    existingAggregate->var += (val - existingAggregate->mean) * delta;
+    return;
 }}
 
-varMeanStruct subwindowVarianceMean({0} *matrix, int x, int y) {{
-    {0} *matrixPtr = &matrix[x + (y) * 5];
-    varMeanStruct result;
-    countVarMeanStruct aggregate = {{
-        .count = 0,
-        .mean = 0.0,
-        .var = 0.0
-    }};
-
-    // Calculate variance and mean with Welford's Online algorithm
-    for (int i = 0; i < 3; i++) {{
-        aggregate = update(aggregate, *matrixPtr++);
-        aggregate = update(aggregate, *matrixPtr++);
-        aggregate = update(aggregate, *matrixPtr);
-        matrixPtr += 3;
-    }}
-    result.mean = aggregate.mean;
-    result.var = aggregate.var;
-    return result;
-    }}
-
-{0} meanFromLeastVariance({0} *matrix) {{
-    varMeanStruct varMean;
-    varMeanStruct tmpVarMean = {{
-        .mean = 0.0,
-        .var = -1.0,
-    }};
-
-    //Pairs of subwindow position y, x indexes
-    int subwindowPositions[6] = {{0, 2, 2, 0, 2, 2}};
-    int *pointer = subwindowPositions;
-    varMean = subwindowVarianceMean(matrix, 0, 0);
-    for (int i = 0; i < 3; i++) {{
-        tmpVarMean = subwindowVarianceMean(matrix, *pointer++, *pointer++);
-        
-        if(tmpVarMean.var < varMean.var) {{
-            varMean = tmpVarMean;
-        }}
-    }}
-
-    #if (ISFLOAT == 1)
-        return ({0})varMean.mean;
-    #else
-        return ({0})(varMean.mean+0.5);
-    #endif
-    }}
-
-__kernel void kuwahara_filter(const unsigned int width, const unsigned int height, __global const {0} *matrix, __global {0} *result)
+__kernel void kuwahara_filter(const unsigned int width, const unsigned int height, __global const IN_DATA_TYPE *matrix, __global IN_DATA_TYPE *result)
 {{
     int x = get_global_id(1);
     int y = get_global_id(0);
@@ -78,15 +34,82 @@ __kernel void kuwahara_filter(const unsigned int width, const unsigned int heigh
     if (x < 2 || x > (width - 3) || y < 2 || y > (height - 3)) {{
             result[x + y * width] = matrix[x + y * width];
         }} else {{
+            const __global IN_DATA_TYPE *matrixPointer;
+            countVarMeanStruct subwindowStatistics[4];
+            matrixPointer = &matrix[x - 2 + (y - 2) * width];
+            const int nextRowOffset = width-4;
 
-            // Fill 5x5 kernel to pass to meanFromLeastVariance
-            {0} matrix5x5[25];
-            for (int yi = 0; yi < 5; yi++) {{
-                for (int xi = 0; xi < 5; xi++) {{
-                    matrix5x5[xi + yi * 5] = matrix[x - 2 + xi + (y - 2 + yi) * width];
-                }}
-            }}
+            subwindowStatistics[0].count = 0;
+            subwindowStatistics[0].var = 0;
+            subwindowStatistics[0].mean = 0;
+            subwindowStatistics[1].count = 0;
+            subwindowStatistics[1].var = 0;
+            subwindowStatistics[1].mean = 0;
+            subwindowStatistics[2].count = 0;
+            subwindowStatistics[2].var = 0;
+            subwindowStatistics[2].mean = 0;
+            subwindowStatistics[3].count = 0;
+            subwindowStatistics[3].var = 0;
+            subwindowStatistics[3].mean = 0;
 
-            result[x + y * width] = meanFromLeastVariance(matrix5x5);
+            // First row
+            update(&subwindowStatistics[0], *matrixPointer++);
+            update(&subwindowStatistics[0], *matrixPointer++);
+            update(&subwindowStatistics[0], *matrixPointer);
+            update(&subwindowStatistics[1], *matrixPointer++);
+            update(&subwindowStatistics[1], *matrixPointer++);
+            update(&subwindowStatistics[1], *matrixPointer);
+
+            // Second row
+            matrixPointer += nextRowOffset;
+            update(&subwindowStatistics[0], *matrixPointer++);
+            update(&subwindowStatistics[0], *matrixPointer++);
+            update(&subwindowStatistics[0], *matrixPointer);
+            update(&subwindowStatistics[1], *matrixPointer++);
+            update(&subwindowStatistics[1], *matrixPointer++);
+            update(&subwindowStatistics[1], *matrixPointer);
+
+            // Third row
+            matrixPointer += nextRowOffset;
+            update(&subwindowStatistics[0], *matrixPointer);
+            update(&subwindowStatistics[2], *matrixPointer++);
+            update(&subwindowStatistics[0], *matrixPointer);
+            update(&subwindowStatistics[2], *matrixPointer++);
+            update(&subwindowStatistics[0], *matrixPointer);
+            update(&subwindowStatistics[1], *matrixPointer);
+            update(&subwindowStatistics[2], *matrixPointer);
+            update(&subwindowStatistics[3], *matrixPointer++);
+            update(&subwindowStatistics[1], *matrixPointer);
+            update(&subwindowStatistics[3], *matrixPointer++);
+            update(&subwindowStatistics[1], *matrixPointer);
+            update(&subwindowStatistics[3], *matrixPointer);
+            matrixPointer += nextRowOffset;
+
+            // Fourth row
+            update(&subwindowStatistics[2], *matrixPointer++);
+            update(&subwindowStatistics[2], *matrixPointer++);
+            update(&subwindowStatistics[2], *matrixPointer);
+            update(&subwindowStatistics[3], *matrixPointer++);
+            update(&subwindowStatistics[3], *matrixPointer++);
+            update(&subwindowStatistics[3], *matrixPointer);
+
+            // Last row
+            matrixPointer += nextRowOffset;
+            update(&subwindowStatistics[2], *matrixPointer++);
+            update(&subwindowStatistics[2], *matrixPointer++);
+            update(&subwindowStatistics[2], *matrixPointer);
+            update(&subwindowStatistics[3], *matrixPointer++);
+            update(&subwindowStatistics[3], *matrixPointer++);
+            update(&subwindowStatistics[3], *matrixPointer);
+
+            countVarMeanStruct resultStats;
+            countVarMeanStruct tmp;
+            resultStats = subwindowStatistics[0];
+            SMALLERVAR(1);
+            SMALLERVAR(2);
+            SMALLERVAR(3);
+
+            //printf("%f \\n", resultStats.mean);
+            result[x + y * width] = (IN_DATA_TYPE)resultStats.mean ROUNDOFFSET;
         }}
 }}"""

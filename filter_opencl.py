@@ -3,12 +3,16 @@ from builtins import range
 import gdal, numpy, sys
 import numpy as np
 import threading
-from time import time
+from time import time, sleep
+from datetime import timedelta
 import queue
 import math
 import pyopencl as cl
-from kuwahara_filter_c_opencl import cSrc
 from pyopencl import array
+try:
+    from .kuwahara_filter_c_opencl import cSrc
+except:
+    from kuwahara_filter_c_opencl import cSrc
 
 """
 This is the algorithm for Kuwahara Filter using OpenCL devices
@@ -57,11 +61,14 @@ class RasterLoader (threading.Thread):
         nBands = len(self.iBand)
         for y in range(2, self.ySize, self.readrows):
             for i in range(0, nBands):
+                if (QCoreApplication != None): 
+                    QCoreApplication.processEvents()
                 if self.ySize-y < self.readrows : self.readrows = self.ySize-y-2
                 self.rasterLock.acquire()
                 data = self.iBand[i].ReadAsArray(0, y-2, self.xSize, self.readrows+4)
                 self.rasterLock.release()
                 self.inBuffer.put([data, self.oBand[i], y, self.numpyType])
+        self.inBuffer.put(False)
         
         
 
@@ -144,27 +151,27 @@ class ProcessingUnit(threading.Thread):
 
 
 class RasterWriter (threading.Thread):
-    def __init__(self, dlg, maxIterations, outBuffer, rasterLock):
+    def __init__(self, outBuffer, rasterLock, isConsole, maxIterations):
         threading.Thread.__init__(self)
-        self.dlg = dlg
-        self.maxIterations = maxIterations
         self.rasterLock = rasterLock
         self.outBuffer = outBuffer
+        self.nIteration = 0
+        self.isConsole = isConsole
+        self.maxIterations = maxIterations
     def run(self):
-        nIteration = 0
         item = self.outBuffer.get()
+        prevProgress = -1
         while (item != False):
+            self.nIteration += 1
             oBand, array, xOffset, yOffset = item
             self.rasterLock.acquire()
             oBand.WriteArray(array,xOffset,yOffset)
             self.rasterLock.release()
-            nIteration += 1
-            progress = str(int(100*nIteration/self.maxIterations))
-            if (self.dlg == None):
-                print('\r'+progress,end='')
-            else:
-                self.dlg.progressBar.setValue(progress)
-            if (QCoreApplication != None): CoreApplication.processEvents()
+            if (self.isConsole):
+                progress = int(100*self.nIteration/self.maxIterations)
+                if (progress > prevProgress):
+                    prevProgress = progress
+                    print('\r'+str(progress),end='')
             item = self.outBuffer.get()
 
 
@@ -196,6 +203,7 @@ C_TYPES = {
 }
 
 def dofilter2(dlg, input, output, memUse=512):
+    start = time()
     ###########
     # Read info on raster and create output
     ###########
@@ -236,24 +244,44 @@ def dofilter2(dlg, input, output, memUse=512):
     
     rasterLock = threading.Lock()
     workerWriter = RasterWriter(
-        dlg, maxIterations, processingBag.outBuffer, rasterLock
+        processingBag.outBuffer, rasterLock, dlg==None, maxIterations
         )
     workerWriter.start()
     
     rasterLoader = RasterLoader(band, xSize, ySize, ROWS_PER_CHUNK, tifNumpyType, oband, rasterLock, processingBag.inBuffer)
     rasterLoader.start()
+    
+    prevProgress = 0
+    if (dlg != None):
+        while (rasterLoader.isAlive()):
+            if (QCoreApplication != None): QCoreApplication.processEvents()
+            progress = int(100*workerWriter.nIteration/maxIterations)
+            if (progress > prevProgress):
+                prevProgress = progress
+                dlg.progressBar.setValue(progress)
+            sleep(0.05)
+    
     rasterLoader.join()
+
+    
 
     # Finished loading
     processingBag.readingFinished()
     processingBag.waitFinishProcessing()
     workerWriter.join()
+    progress = 100
+    if (dlg == None):
+        print('\r'+str(progress),end='')
+    else:
+        dlg.progressBar.setValue(progress)
 
     # Close raster writing and reading
     out = None
     tif = None
     del out
     del tif
+    print()
+    print(timedelta(seconds=round(time()-start)))
     return True
 
 

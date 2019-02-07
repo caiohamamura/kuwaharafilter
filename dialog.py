@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'kuwaharafilter/dialog.ui'
+# Form implementation generated from reading ui file 'dialog.ui'
 #
-# Created by: PyQt5 UI code generator 5.6
+# Created by: PyQt5 UI code generator 5.9.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -11,7 +11,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(397, 226)
+        Form.resize(397, 195)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -25,8 +25,8 @@ class Ui_Form(object):
         self.formLayout.setHorizontalSpacing(1)
         self.formLayout.setObjectName("formLayout")
         self.inputbox = QgsMapLayerComboBox(self.formLayoutWidget)
-        self.inputbox.setAllowEmptyLayer(False)
-        self.inputbox.setShowCrs(False)
+        self.inputbox.setProperty("allowEmptyLayer", False)
+        self.inputbox.setProperty("showCrs", False)
         self.inputbox.setObjectName("inputbox")
         self.formLayout.setWidget(6, QtWidgets.QFormLayout.FieldRole, self.inputbox)
         self.label_2 = QtWidgets.QLabel(self.formLayoutWidget)
@@ -74,7 +74,7 @@ class Ui_Form(object):
         self.formLayout.setLayout(9, QtWidgets.QFormLayout.FieldRole, self.horizontalLayout_3)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
-        self.horizontalLayout_2.setContentsMargins(150, -1, 0, -1)
+        self.horizontalLayout_2.setContentsMargins(150, -1, 0, 5)
         self.horizontalLayout_2.setSpacing(0)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.run = QtWidgets.QPushButton(self.formLayoutWidget)

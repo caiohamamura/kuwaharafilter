@@ -35,10 +35,12 @@ import os
 # create the dialog for zoom to point
 
 #Use gpu if pyopencl available
+usingGpu = False
 try:
     import pyopencl
     from .filter_opencl import *
     doFilter = dofilter2
+    usingGpu = True
 except:
     pass
 
@@ -55,6 +57,8 @@ class kuw_filterDialog(QMainWindow, Ui_Form):
         self.run.clicked.connect(self.run_clicked)
         self.outputb.clicked.connect(self.outputb_clicked)
         self.inputbox.setFilters(QgsMapLayerProxyModel.RasterLayer)
+        if (usingGpu):
+            self.setWindowTitle(QApplication.translate("Form", "Kuwahara Filter") + " (GPU)")
         
     @QtCore.pyqtSlot()
     def msgbox(self, texto, icon=QMessageBox.Information):
