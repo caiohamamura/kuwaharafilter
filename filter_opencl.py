@@ -1,4 +1,3 @@
-from __future__ import print_function
 from builtins import zip
 from builtins import range
 import gdal, numpy, sys
@@ -8,89 +7,165 @@ from time import time
 import queue
 import math
 import pyopencl as cl
+from kuwahara_filter_c_opencl import cSrc
 from pyopencl import array
 
+"""
+This is the algorithm for Kuwahara Filter using OpenCL devices
+The algorithm works with separate threads. It contains 4 classes (+) and two buffers (-):
+ - inBuffer: buffer chunks of data received from raster reading
+ 
+ - outBuffer: buffer chunks of resulting data from filtering
+
+ + RasterLoader: Load raster chunks and data to inBuffer (1 thread)
+ 
+ + ProcessingUnit: Loads data from inBuffer to execute in the OpenCL kernels and capture its results to outBuffer (1 thread for each OpenCL device)
+ 
+ + ProcessingBag: Manage ProcessingUnit(s) creating a thread for each device and handling the buffers to signal that processing has ended (in the main thread).
+ 
+ + RasterWriter: Load resulting chunks from outBuffer and writes to output raster (1 thread) 
+
+ Context: 
+ 
+ The buffer mentioned here are simply main memory space allocated to store temporary data.
+
+ Since we don't know before hand IO vs processing speed, inBuffer may store data from RasterReader to deliver as soon as a ProcessingUnit is available. Writing to raster output may also be a bottleneck, so that outBuffer can store the results to write as the RasterWriter is ready.
+
+Though, rasters are often larger than memory, so the inBuffer and outBuffer are limited to store the same number of chunks as the number of devices providing OpenCL framework, as a suposition that if a host has many devices providing OpenCL (e.g. 4 GPUs) it may as well have larger memory. 
+"""
+
+
+# If opened from console qgis is not necessary
 QCoreApplication = None
 try:
     from qgis.PyQt.QtCore import QCoreApplication
 except:
     pass
 
-
-
-nIteration = 0
-isLoadingArr1 = True
-## Step #1. Obtain an OpenCL platform.
-devices = [j for i in cl.get_platforms() for j in i.get_devices()]
-nDevices = len(devices)
-buffer = queue.Queue(maxsize=nDevices)
-bufferResult = queue.Queue(maxsize=nDevices)
-contexts = [cl.Context([device]) for device in devices]
-threadLock = threading.Lock()
-
-class ArrayLoader (threading.Thread):
-    def __init__(self, rasterBand, y, xsize, readrows, numpyType, oBand):
+class RasterLoader (threading.Thread):
+    def __init__(self, iBand, xSize, ySize, readrows, numpyType, oBand, rasterLock, inBuffer):
         threading.Thread.__init__(self)
-        self.rasterBand = rasterBand
-        self.y = y-2
-        self.xsize = xsize
-        self.readrows = readrows+4
+        self.iBand = iBand
+        self.xSize = xSize
+        self.ySize = ySize
+        self.readrows = readrows
         self.numpyType = numpyType
         self.oBand = oBand
+        self.rasterLock = rasterLock
+        self.inBuffer = inBuffer
     def run(self):
-        global buffer, threadLock
-        threadLock.acquire()
-        data = self.rasterBand.ReadAsArray(0, self.y, self.xsize, self.readrows)
-        threadLock.release()
-        buffer.put([data, self.oBand, self.y, self.numpyType])
+        nBands = len(self.iBand)
+        for y in range(2, self.ySize, self.readrows):
+            for i in range(0, nBands):
+                if self.ySize-y < self.readrows : self.readrows = self.ySize-y-2
+                self.rasterLock.acquire()
+                data = self.iBand[i].ReadAsArray(0, y-2, self.xSize, self.readrows+4)
+                self.rasterLock.release()
+                self.inBuffer.put([data, self.oBand[i], y, self.numpyType])
         
+        
+
+
+class ProcessingBag:
+    def __init__(self, cType, isFloat):
+        # Get opencl devices and count
+        devices = [j for i in cl.get_platforms() for j in i.get_devices()]
+        self.nDevices = len(devices)
+        self.inBuffer = queue.Queue(self.nDevices)
+        self.outBuffer = queue.Queue(self.nDevices)
+        
+        #Create context for each device
+        contexts = [cl.Context([device]) for device in devices]
+
+        #Compile the program for each context
+        cSrcCode = cSrc.format(cType, int(isFloat))
+        programs = [cl.Program(context, cSrcCode) for context in contexts]
+        [program.build() for program in programs]
     
-class GPUCalculator (threading.Thread):
-    def __init__(self, program, context, queue):
+        # Queues for contexts
+        queues = [cl.CommandQueue(context) for context in contexts]
+        
+        
+
+        #Create a processingUnit for each program/context/queue
+        self.workerExec = [
+            ProcessingUnit(
+                programs[i], contexts[i], queues[i], self.inBuffer, self.outBuffer
+                ) for i in range(self.nDevices)
+                ]
+        
+        for i in self.workerExec:
+            i.start()
+    
+    def readingFinished(self):
+        for i in range(self.nDevices):
+            self.inBuffer.put(False)
+
+    def signalProcessingFinished(self):
+        self.outBuffer.put(False)
+
+    def waitFinishProcessing(self):
+        for i in self.workerExec:
+            i.join()
+        self.signalProcessingFinished()
+
+        
+
+    
+class ProcessingUnit(threading.Thread):
+    def __init__(self, program, context, queue, inBuffer, outBuffer):
         threading.Thread.__init__(self)
         self.program = program
         self.context = context
         self.queue = queue
+        self.inBuffer = inBuffer
+        self.outBuffer = outBuffer
     def run(self):
-        global buffer, bufferResult
-        item = buffer.get()
+        item = self.inBuffer.get()
         while (item != False):
             arr, oBand, y, numpyType = item
+
+            #Create input buffers for OpenCL kernels
             mem_flags = cl.mem_flags
             matrix_buf = cl.Buffer(self.context, mem_flags.READ_ONLY | mem_flags.COPY_HOST_PTR, hostbuf=arr)
             destination_buf = cl.Buffer(self.context, mem_flags.WRITE_ONLY, arr.nbytes)
 
-            ## Step #9. Associate the arguments to the kernel with kernel object.
-            ## Step #10. Deploy the kernel for device execution.
+            ## Step #10. Deploy the kernel to OpenCL queue
             self.program.kuwahara_filter(self.queue, arr.shape, None, np.uint32(arr.shape[1]), np.uint32(arr.shape[0]), matrix_buf, destination_buf)
 
-            ## Step #11. Move the kernels output data to host memory.
+            ## Move the kernels output data to host memory
             kuwahara_result = np.ones(arr.shape, dtype=numpyType)
             cl.enqueue_copy(self.queue, kuwahara_result, destination_buf)
-            bufferResult.put([oBand, kuwahara_result[2:-2, 2:-2], 2, y])
-            item = buffer.get()
+
+            # Put the data into outBuffer for writing in raster
+            self.outBuffer.put([oBand, kuwahara_result[2:-2, 2:-2], 2, y])
+            item = self.inBuffer.get()
         
 
 
 class RasterWriter (threading.Thread):
-    def __init__(self, dlg):
+    def __init__(self, dlg, maxIterations, outBuffer, rasterLock):
         threading.Thread.__init__(self)
         self.dlg = dlg
+        self.maxIterations = maxIterations
+        self.rasterLock = rasterLock
+        self.outBuffer = outBuffer
     def run(self):
-        global bufferResult, threadLock, nIteration, MAX_ITERATIONS
-        item = bufferResult.get()
+        nIteration = 0
+        item = self.outBuffer.get()
         while (item != False):
             oBand, array, xOffset, yOffset = item
-            threadLock.acquire()
+            self.rasterLock.acquire()
             oBand.WriteArray(array,xOffset,yOffset)
+            self.rasterLock.release()
             nIteration += 1
-            progress = str(int(100*nIteration/MAX_ITERATIONS))
+            progress = str(int(100*nIteration/self.maxIterations))
             if (self.dlg == None):
                 print('\r'+progress,end='')
             else:
                 self.dlg.progressBar.setValue(progress)
-            threadLock.release()
-            item = bufferResult.get()
+            if (QCoreApplication != None): CoreApplication.processEvents()
+            item = self.outBuffer.get()
 
 
 
@@ -120,147 +195,61 @@ C_TYPES = {
     7: "double"
 }
 
-def dofilter2(dlg, input, output, memuse=512):
-    global isLoadingArr1, arrs, N_BANDS, READROWS, Y_SIZE, bufferResult, MAX_ITERATIONS, buffer
-    start_time = time()    
+def dofilter2(dlg, input, output, memUse=512):
+    ###########
+    # Read info on raster and create output
+    ###########
     try:
         from osgeo import gdal
     except ImportError:
         import gdal
     from gdalconst import GA_ReadOnly, GDT_Float32
     gdal.AllRegister()
-    w = 5
-    w2 = (w+1)/2
-    memuse=int(memuse)
+    memUse = int(memUse)
     tif = gdal.Open(input, GA_ReadOnly)
-    N_BANDS = tif.RasterCount
+    nBands = tif.RasterCount
     driver = tif.GetDriver()
-    xsize = tif.RasterXSize
-    Y_SIZE = tif.RasterYSize
-    data_type = tif.GetRasterBand(1).DataType
-    out = gdal.GetDriverByName('GTiff').Create(output, xsize, Y_SIZE, N_BANDS, data_type)
+    xSize = tif.RasterXSize
+    ySize = tif.RasterYSize
+    dataType = tif.GetRasterBand(1).DataType
+    out = gdal.GetDriverByName('GTiff').Create(output, xSize, ySize, nBands, dataType)
     try:
         out.SetGeoTransform(tif.GetGeoTransform())
         out.SetProjection(tif.GetProjection())
     except:
         pass
-    band = [None]*N_BANDS
-    oband = [None]*N_BANDS
-    for i in range(0,N_BANDS):
+    band = [None]*nBands
+    oband = [None]*nBands
+    for i in range(0,nBands):
         band[i] = tif.GetRasterBand(i+1)
         oband[i] = out.GetRasterBand(i+1)
-    tif_numpy_type = NUMPY_TYPES[data_type]
-    c_type = C_TYPES[data_type]
-    cSrcCode = """
-    #define ISFLOAT {1}
-
-    typedef struct  {{
-        unsigned char count;
-        double mean;
-        double m2;
-    }} countMeanM2;
-
-    typedef struct  {{
-        double mean;
-        double m2;
-    }} meanM2;
+    tifNumpyType = NUMPY_TYPES[dataType]
+    cType = C_TYPES[dataType]
+    isFloat = dataType > 5    
     
+    # Calculate size of chunks and iterations needed
+    ROWS_PER_CHUNK = int((((memUse-67)*48036)/xSize)/2)
+    maxIterations = nBands*math.ceil((ySize-2)/ROWS_PER_CHUNK)
 
-    countMeanM2 update(countMeanM2 existingAggregate, {0} newValue) {{
-    double val = (double)newValue;
-    existingAggregate.count++;
-    double delta = val - existingAggregate.mean;
-    existingAggregate.mean += delta / existingAggregate.count;
-    existingAggregate.m2 += (val - existingAggregate.mean) * delta;
-    return existingAggregate;
-    }}
-
-    meanM2 calculateVarianceMean({0} *matrix, int x, int y) {{
-    {0} *matrixPtr = &matrix[x + (y) * 5];
-    meanM2 result;
-    countMeanM2 aggregate = {{
-        .count = 0,
-        .mean = 0.0,
-        .m2 = 0.0
-    }};
-    for (int i = 0; i < 3; i++) {{
-        aggregate = update(aggregate, *matrixPtr++);
-        aggregate = update(aggregate, *matrixPtr++);
-        aggregate = update(aggregate, *matrixPtr);
-        matrixPtr += 3;
-    }}
-    result.mean = aggregate.mean;
-    result.m2 = aggregate.m2;
-    return result;
-    }}
-
-    double calculateKuwahara({0} *matrix) {{
-    meanM2 result;
-    meanM2 tmpResult = {{
-        .mean = 0.0,
-        .m2 = -1.0,
-    }};
-    int subwindowPositions[6] = {{0, 2, 2, 0, 2, 2}};
-    int *pointer = subwindowPositions;
-    result = calculateVarianceMean(matrix, 0, 0);
-    for (int i = 0; i < 3; i++) {{
-        tmpResult = calculateVarianceMean(matrix, *pointer++, *pointer++);
-        if(tmpResult.m2 < result.m2) {{
-            result = tmpResult;
-        }}
-    }}
-    #if (ISFLOAT == 1)
-        return result.mean;
-    #else
-        return result.mean+0.5;
-    #endif
-    }}
-
-    __kernel void kuwahara_filter(const unsigned int width, const unsigned int height, __global const {0} *matrix, __global {0} *result)
-    {{
-        int x = get_global_id(1);
-        int y = get_global_id(0);
-        if (x < 2 || x > (width - 3) || y < 2 || y > (height - 3)) {{
-                result[x + y * width] = matrix[x + y * width];
-            }} else {{
-                {0} matrix5x5[25];
-                for (int yi = 0; yi < 5; yi++) {{
-                    for (int xi = 0; xi < 5; xi++) {{
-                        matrix5x5[xi + yi * 5] = matrix[x - 2 + xi + (y - 2 + yi) * width];
-                    }}
-                }}
-                result[x + y * width] = ({0})(calculateKuwahara(matrix5x5));
-            }}
-    }}
-    """.format(c_type, int(data_type>5))
-    programs = [cl.Program(context, cSrcCode) for context in contexts]
-    [program.build() for program in programs]
-
-    ## Step #7. Create a command queue for the target device.
-    queues = [cl.CommandQueue(context) for context in contexts]
-    GPUCalculatorInputs = list(zip(programs, contexts, queues))
-    workerExec = [GPUCalculator(program, context, queue) for (program, context, queue) in GPUCalculatorInputs]
-    [i.start() for i in workerExec]
-    workerWriter = RasterWriter(dlg)
+    # Create processing stuff
+    processingBag = ProcessingBag(cType, isFloat)
+    
+    rasterLock = threading.Lock()
+    workerWriter = RasterWriter(
+        dlg, maxIterations, processingBag.outBuffer, rasterLock
+        )
     workerWriter.start()
-    nr=numpy.roll
-    READROWS = int((((memuse-67)*48036)/xsize)/2)
-    readrows = READROWS
-    #oband[0].WriteArray(numpy.repeat(0,xsize*2).reshape(2,-1),0,0)
-    arr = [None]*N_BANDS
-    MAX_ITERATIONS = N_BANDS*math.ceil((Y_SIZE-2)/READROWS)
-    n = 0
-    for y in range(2, Y_SIZE, READROWS):
-        for i in range(0, N_BANDS):
-            if (QCoreApplication != None): QCoreApplication.processEvents()
-            if Y_SIZE-y < READROWS : readrows = Y_SIZE-y-2
-            thread0 = ArrayLoader(band[i], y, xsize, readrows, tif_numpy_type, oband[i])
-            thread0.start()
-            thread0.join()
-    [buffer.put(False) for i in range(nDevices)]
-    [i.join() for i in workerExec]
-    bufferResult.put(False)
+    
+    rasterLoader = RasterLoader(band, xSize, ySize, ROWS_PER_CHUNK, tifNumpyType, oband, rasterLock, processingBag.inBuffer)
+    rasterLoader.start()
+    rasterLoader.join()
+
+    # Finished loading
+    processingBag.readingFinished()
+    processingBag.waitFinishProcessing()
     workerWriter.join()
+
+    # Close raster writing and reading
     out = None
     tif = None
     del out
