@@ -2,7 +2,7 @@
 name=Kuwahara Filter
 qgisMinimumVersion=3.0
 description=Applies Kuwahara Filter
-version=2.3
+version=2.3.3
 author=Caio Hamamura - Laboratorio de Silvicultura Urbana - Universidade de Sao Paulo (campus de Piracicaba)
 email=caiohamamura@gmail.com
 
@@ -14,6 +14,7 @@ about=Applies Kuwahara Filter
 
 # Uncomment the following line and add your changelog entries:
 changelog=
+		2.3.3 Forgot to add required file with c source code
 		2.3.2 Fixed issue involving Qt handling inside threads
 		2.3.1 Refactor code for readability
 	2.3 Improved c code performance for OpenCL

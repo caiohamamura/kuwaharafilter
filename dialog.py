@@ -98,7 +98,7 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Kuwahara Filter"))
+        Form.setWindowTitle(_translate("Form", "Kuwahara Filter (no-GPU)"))
         self.label_2.setText(_translate("Form", "Output Raster"))
         self.output.setPlaceholderText(_translate("Form", "<temporary file>"))
         self.outputb.setText(_translate("Form", "..."))
