@@ -5,7 +5,7 @@ The Kuwahara filter is an edge-preserving filter which analyze subwindows around
 
 There are two implementations of the filter available, one which will use only numpy for compatibility issues and another one for optimized for performance using *pyopencl*, which will take advantage of all devices compatible with opencl, including GPUs from the most common vendors. 
 
-For using the optimized version you will need to install pyopencl and also the video/cpu drivers compatible with OpenCL. 
+For using the optimized version you will need to install pyopencl and also the video/cpu drivers compatible with OpenCL. For instance in linux you should find the packages: beignet-opencl-icd (Intel), nvidia-opencl-icd (NVidia) and mesa-opencl-icd (AMD).
 
 # Installing pyopencl
 
