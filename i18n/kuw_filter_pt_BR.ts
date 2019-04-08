@@ -5,8 +5,8 @@
     <name>Form</name>
     <message>
         <location filename="../dialog.py" line="90"/>
-        <source>Kuwahara Filter</source>
-        <translation>Filtro Kuwahara</translation>
+        <source>Kuwahara Filter (no GPU)</source>
+        <translation>Filtro Kuwahara (sem GPU)</translation>
     </message>
     <message>
         <location filename="../dialog.py" line="91"/>

@@ -46,7 +46,6 @@ except:
 
 
 
-
 class kuw_filterDialog(QMainWindow, Ui_Form):
     def __init__(self, parent=None):
         self.outdir = ''
@@ -59,13 +58,14 @@ class kuw_filterDialog(QMainWindow, Ui_Form):
         self.inputbox.setFilters(QgsMapLayerProxyModel.RasterLayer)
         if (usingGpu):
             self.setWindowTitle(QApplication.translate("Form", "Kuwahara Filter") + " (GPU)")
-        
-    @QtCore.pyqtSlot()
+
     def msgbox(self, texto, icon=QMessageBox.Information):
         msg = QMessageBox()
         msg.setText(str(texto))
         msg.setIcon(icon)
         msg.exec_()
+    
+    @QtCore.pyqtSlot()
     def run_clicked(self):
         self.setEnabled(False)
         input = self.inputbox.currentLayer().source()
@@ -92,6 +92,8 @@ class kuw_filterDialog(QMainWindow, Ui_Form):
         self.setCursor(QCursor(Qt.ArrowCursor))
         self.setEnabled(True)
         self.close()
+    
+    @QtCore.pyqtSlot()
     def outputb_clicked(self):
         if len(self.outdir) == 0 :
             self.i=0

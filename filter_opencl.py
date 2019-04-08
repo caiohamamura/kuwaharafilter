@@ -47,34 +47,32 @@ except:
     pass
 
 class RasterLoader (threading.Thread):
-    def __init__(self, iBand, xSize, ySize, readrows, numpyType, oBand, rasterLock, inBuffer):
+    def __init__(self, tif, xSize, ySize, readrows, numpyType, rasterLock, inBuffer):
         threading.Thread.__init__(self)
-        self.iBand = iBand
+        self.tif = tif
         self.xSize = xSize
         self.ySize = ySize
         self.readrows = readrows
         self.numpyType = numpyType
-        self.oBand = oBand
         self.rasterLock = rasterLock
         self.inBuffer = inBuffer
     def run(self):
-        nBands = len(self.iBand)
+        nBands = self.tif.RasterCount
         for y in range(2, self.ySize, self.readrows):
-            for i in range(0, nBands):
-                if (QCoreApplication != None): 
-                    QCoreApplication.processEvents()
-                if self.ySize-y < self.readrows : self.readrows = self.ySize-y-2
-                self.rasterLock.acquire()
-                data = self.iBand[i].ReadAsArray(0, y-2, self.xSize, self.readrows+4)
-                self.rasterLock.release()
-                self.inBuffer.put([data, self.oBand[i], y, self.numpyType])
+            if (QCoreApplication != None): 
+                QCoreApplication.processEvents()
+            if self.ySize-y < self.readrows : self.readrows = self.ySize-y-2
+            self.rasterLock.acquire()
+            data = self.tif.ReadAsArray(0, y-2, self.xSize, self.readrows+4)
+            self.rasterLock.release()
+            self.inBuffer.put([data, y, self.numpyType])
         self.inBuffer.put(False)
         
         
 
 
 class ProcessingBag:
-    def __init__(self, cType, isFloat):
+    def __init__(self, nBands, cType, isFloat):
         # Get opencl devices and count
         devices = [j for i in cl.get_platforms() for j in i.get_devices()]
         self.nDevices = len(devices)
@@ -85,7 +83,7 @@ class ProcessingBag:
         contexts = [cl.Context([device]) for device in devices]
 
         #Compile the program for each context
-        cSrcCode = cSrc.format(cType, int(isFloat))
+        cSrcCode = cSrc.format(nBands, cType, int(isFloat))
         programs = [cl.Program(context, cSrcCode) for context in contexts]
         [program.build() for program in programs]
     
@@ -130,7 +128,7 @@ class ProcessingUnit(threading.Thread):
     def run(self):
         item = self.inBuffer.get()
         while (item != False):
-            arr, oBand, y, numpyType = item
+            arr, y, numpyType = item
 
             #Create input buffers for OpenCL kernels
             mem_flags = cl.mem_flags
@@ -138,34 +136,38 @@ class ProcessingUnit(threading.Thread):
             destination_buf = cl.Buffer(self.context, mem_flags.WRITE_ONLY, arr.nbytes)
 
             ## Step #10. Deploy the kernel to OpenCL queue
-            self.program.kuwahara_filter(self.queue, arr.shape, None, np.uint32(arr.shape[1]), np.uint32(arr.shape[0]), matrix_buf, destination_buf)
+            self.program.kuwahara_filter(self.queue, arr.shape[1:], None, np.uint32(arr.shape[2]), np.uint32(arr.shape[1]), matrix_buf, destination_buf)
 
             ## Move the kernels output data to host memory
             kuwahara_result = np.ones(arr.shape, dtype=numpyType)
             cl.enqueue_copy(self.queue, kuwahara_result, destination_buf)
 
             # Put the data into outBuffer for writing in raster
-            self.outBuffer.put([oBand, kuwahara_result[2:-2, 2:-2], 2, y])
+            self.outBuffer.put([kuwahara_result[:, 2:-2, 2:-2], 2, y])
             item = self.inBuffer.get()
         
 
 
 class RasterWriter (threading.Thread):
-    def __init__(self, outBuffer, rasterLock, isConsole, maxIterations):
+    def __init__(self, outTif, outBuffer, rasterLock, isConsole, maxIterations, dlg):
         threading.Thread.__init__(self)
         self.rasterLock = rasterLock
         self.outBuffer = outBuffer
         self.nIteration = 0
         self.isConsole = isConsole
         self.maxIterations = maxIterations
+        self.dlg = dlg
+        self.outTif = outTif
     def run(self):
         item = self.outBuffer.get()
+        nBands = self.outTif.RasterCount
         prevProgress = -1
         while (item != False):
             self.nIteration += 1
-            oBand, array, xOffset, yOffset = item
+            array, xOffset, yOffset = item
             self.rasterLock.acquire()
-            oBand.WriteArray(array,xOffset,yOffset)
+            for i in range(nBands):
+                self.outTif.GetRasterBand(i+1).WriteArray(array[i],xOffset,yOffset)
             self.rasterLock.release()
             if (self.isConsole):
                 progress = int(100*self.nIteration/self.maxIterations)
@@ -226,29 +228,26 @@ def dofilter2(dlg, input, output, memUse=512):
         out.SetProjection(tif.GetProjection())
     except:
         pass
-    band = [None]*nBands
-    oband = [None]*nBands
-    for i in range(0,nBands):
-        band[i] = tif.GetRasterBand(i+1)
-        oband[i] = out.GetRasterBand(i+1)
     tifNumpyType = NUMPY_TYPES[dataType]
     cType = C_TYPES[dataType]
     isFloat = dataType > 5    
     
     # Calculate size of chunks and iterations needed
-    ROWS_PER_CHUNK = int((((memUse-67)*48036)/xSize)/2)
-    maxIterations = nBands*math.ceil((ySize-2)/ROWS_PER_CHUNK)
+    ROWS_PER_CHUNK = int((((memUse-67)*48036)/xSize)/6)
+    maxIterations = math.ceil((ySize-2)/ROWS_PER_CHUNK)
 
     # Create processing stuff
-    processingBag = ProcessingBag(cType, isFloat)
+    processingBag = ProcessingBag(nBands, cType, isFloat)
     
     rasterLock = threading.Lock()
     workerWriter = RasterWriter(
-        processingBag.outBuffer, rasterLock, dlg==None, maxIterations
+        out, processingBag.outBuffer, rasterLock, dlg==None, maxIterations, dlg
         )
     workerWriter.start()
     
-    rasterLoader = RasterLoader(band, xSize, ySize, ROWS_PER_CHUNK, tifNumpyType, oband, rasterLock, processingBag.inBuffer)
+    rasterLoader = RasterLoader(
+        tif, xSize, ySize, ROWS_PER_CHUNK, tifNumpyType, rasterLock, processingBag.inBuffer
+        )
     rasterLoader.start()
     
     prevProgress = 0
@@ -259,7 +258,7 @@ def dofilter2(dlg, input, output, memUse=512):
             if (progress > prevProgress):
                 prevProgress = progress
                 dlg.progressBar.setValue(progress)
-            sleep(0.05)
+            sleep(0.016)
     
     rasterLoader.join()
 

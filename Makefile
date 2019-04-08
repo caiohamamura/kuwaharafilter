@@ -42,7 +42,8 @@ SOURCES = __init__.py \
 		  kuw_filter.py \
 		  kuw_filterdialog.py \
 		  resources.py \
-		  filter_opencl.py
+		  filter_opencl.py \
+		  kuwahara_filter_c_opencl.py
 
 TRANSLATIONS = i18n/kuw_filter_pt_BR.ts
 
@@ -55,7 +56,8 @@ PY_FILES = \
 		  kuw_filter.py \
 		  kuw_filterdialog.py \
 		  resources.py \
-		  filter_opencl.py
+		  filter_opencl.py \
+		  kuwahara_filter_c_opencl.py
 
 UI_FILES = dialog.ui
 

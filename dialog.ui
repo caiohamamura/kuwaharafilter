@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Kuwahara Filter</string>
+   <string>Kuwahara Filter (no-GPU)</string>
   </property>
   <widget class="QWidget" name="formLayoutWidget">
    <property name="geometry">
