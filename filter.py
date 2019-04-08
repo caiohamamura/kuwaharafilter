@@ -14,9 +14,9 @@ NUMPY_TYPES = {
 }
 
 NUMPY_TYPES_1 = {
-    1: numpy.uint16,
-    2: numpy.uint32,
-    3: numpy.int32,
+    1: numpy.uint32,
+    2: numpy.uint64,
+    3: numpy.int64,
     4: numpy.uint64,
     5: numpy.int64,
     2: numpy.float64,
@@ -73,24 +73,20 @@ def dofilter(dlg, input, output, refband=1, memuse=100):
         sum2=arr1**2
         sum2=na(na(na(na(na(sum2,nr(sum2,1,1)),nr(sum2,-1,1)),na(nr(nr(sum2,-1,1),-1,0),nr(nr(sum2,-1,1),1,0))),na(nr(nr(sum2,1,1),-1,0),nr(nr(sum2,1,1),1,0))),na(nr(sum2,-1,0),nr(sum2,1,0)))
         sum2 = tif_numpy_upper_type(numpy.round((sum2-((sum**2)/9.0))/9.0))
-        sum = tif_numpy_upper_type((sum/9.0)+0.5)
+        sum = tif_numpy_type((sum/9.0)+0.5)
         sum23=nr(sum2,-2,1)
         t=numpy.vstack((sum2.flatten(),sum23.flatten(),nr(sum2,2,0).flatten(),nr(sum23,2,0).flatten()))
         t=t==numpy.min(t,0)
         sum23=nr(sum,-2,1)
-        band_max = band[0].GetMaximum()
-        band_min = band[0].GetMinimum()
         arr1=nr(nr(tif_numpy_type(numpy.reshape(numpy.max((t)*numpy.vstack((sum.flatten(),sum23.flatten(),nr(sum,2,0).flatten(),nr(sum23,2,0).flatten())),0),(readrows+4,-1))),-1,0),1,1)[2:(readrows+2),2:(xsize-2)]
         oband[0].WriteArray(arr1,2,y-2)
-        dlg.progressBar.setValue(int((100*(y+(readrows)+4))/ysize))
+        dlg.progressBar.setValue(int((100*(y+(readrows/nbands)+4))/ysize))
         for i in range(1,nbands):
             arr1 = band[i].ReadAsArray(0, y, xsize, readrows)
             arr1 = tif_numpy_upper_type(numpy.vstack((arr[i],arr1)))
             arr[i] = arr1[readrows:readrows+5,]
-            sum = tif_numpy_upper_type((na(na(na(na(na(arr1,nr(arr1,1,1)),nr(arr1,-1,1)),na(nr(nr(arr1,-1,1),-1,0),nr(nr(arr1,-1,1),1,0))),na(nr(nr(arr1,1,1),-1,0),nr(nr(arr1,1,1),1,0))),na(nr(arr1,-1,0),nr(arr1,1,0))))/9.0+0.5)
-            sum23 = nr(sum,-2,1)
-            band_max = band[i].GetMaximum()
-            band_min = band[i].GetMinimum()
+            sum=tif_numpy_upper_type((na(na(na(na(na(arr1,nr(arr1,1,1)),nr(arr1,-1,1)),na(nr(nr(arr1,-1,1),-1,0),nr(nr(arr1,-1,1),1,0))),na(nr(nr(arr1,1,1),-1,0),nr(nr(arr1,1,1),1,0))),na(nr(arr1,-1,0),nr(arr1,1,0))))/9.0+0.5)
+            sum23=nr(sum,-2,1)
             arr1=nr(nr(tif_numpy_type(numpy.reshape(numpy.max((t)*numpy.vstack((sum.flatten(),sum23.flatten(),nr(sum,2,0).flatten(),nr(sum23,2,0).flatten())),0),(readrows+4,-1))),-1,0),1,1)[2:(readrows+2),2:(xsize-2)]
             oband[i].WriteArray(arr1,2,y-2)
             dlg.progressBar.setValue(int((100*(y+(((i+1)*readrows)/nbands)+4))/ysize))
