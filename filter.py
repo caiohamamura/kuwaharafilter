@@ -80,7 +80,7 @@ def dofilter(dlg, input, output, refband=1, memuse=100):
         sum23=nr(sum,-2,1)
         arr1=nr(nr(tif_numpy_type(numpy.reshape(numpy.max((t)*numpy.vstack((sum.flatten(),sum23.flatten(),nr(sum,2,0).flatten(),nr(sum23,2,0).flatten())),0),(readrows+4,-1))),-1,0),1,1)[2:(readrows+2),2:(xsize-2)]
         oband[0].WriteArray(arr1,2,y-2)
-        dlg.progressBar.setValue(int((100*(y+(readrows)+4))/ysize))
+        dlg.progressBar.setValue(int((100*(y+(readrows/nbands)+4))/ysize))
         for i in range(1,nbands):
             arr1 = band[i].ReadAsArray(0, y, xsize, readrows)
             arr1 = tif_numpy_upper_type(numpy.vstack((arr[i],arr1)))
