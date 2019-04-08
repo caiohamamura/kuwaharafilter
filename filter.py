@@ -34,13 +34,13 @@ def dofilter(dlg, input, output, refband=1, memuse=100):
     w2 = (w+1)/2
     refband=int(refband)
     memuse=int(memuse)
-    tif = gdal.Open(str(input), GA_ReadOnly)
+    tif = gdal.Open(unicode(input), GA_ReadOnly)
     nbands = tif.RasterCount
     driver = tif.GetDriver()
     xsize = tif.RasterXSize
     ysize = tif.RasterYSize
     data_type = tif.GetRasterBand(1).DataType
-    out = gdal.GetDriverByName('GTiff').Create(str(output), xsize, ysize, nbands, data_type)
+    out = gdal.GetDriverByName('GTiff').Create(unicode(output), xsize, ysize, nbands, data_type)
     try:
         out.SetGeoTransform(tif.GetGeoTransform())
         out.SetProjection(tif.GetProjection())
@@ -72,8 +72,8 @@ def dofilter(dlg, input, output, refband=1, memuse=100):
         sum=na(na(na(na(na(arr1,nr(arr1,1,1)),nr(arr1,-1,1)),na(nr(nr(arr1,-1,1),-1,0),nr(nr(arr1,-1,1),1,0))),na(nr(nr(arr1,1,1),-1,0),nr(nr(arr1,1,1),1,0))),na(nr(arr1,-1,0),nr(arr1,1,0)))
         sum2=arr1**2
         sum2=na(na(na(na(na(sum2,nr(sum2,1,1)),nr(sum2,-1,1)),na(nr(nr(sum2,-1,1),-1,0),nr(nr(sum2,-1,1),1,0))),na(nr(nr(sum2,1,1),-1,0),nr(nr(sum2,1,1),1,0))),na(nr(sum2,-1,0),nr(sum2,1,0)))
-        sum2 = tif_numpy_type(numpy.round((sum2-((sum**2)/9.0))/9.0))
-        sum = tif_numpy_type((sum/9.0)+0.5)
+        sum2 = tif_numpy_upper_type(numpy.round((sum2-((sum**2)/9.0))/9.0))
+        sum = tif_numpy_upper_type((sum/9.0)+0.5)
         sum23=nr(sum2,-2,1)
         t=numpy.vstack((sum2.flatten(),sum23.flatten(),nr(sum2,2,0).flatten(),nr(sum23,2,0).flatten()))
         t=t==numpy.min(t,0)
@@ -87,7 +87,7 @@ def dofilter(dlg, input, output, refband=1, memuse=100):
             arr1 = band[i].ReadAsArray(0, y, xsize, readrows)
             arr1 = tif_numpy_upper_type(numpy.vstack((arr[i],arr1)))
             arr[i] = arr1[readrows:readrows+5,]
-            sum = tif_numpy_type((na(na(na(na(na(arr1,nr(arr1,1,1)),nr(arr1,-1,1)),na(nr(nr(arr1,-1,1),-1,0),nr(nr(arr1,-1,1),1,0))),na(nr(nr(arr1,1,1),-1,0),nr(nr(arr1,1,1),1,0))),na(nr(arr1,-1,0),nr(arr1,1,0))))/9.0+0.5)
+            sum = tif_numpy_upper_type((na(na(na(na(na(arr1,nr(arr1,1,1)),nr(arr1,-1,1)),na(nr(nr(arr1,-1,1),-1,0),nr(nr(arr1,-1,1),1,0))),na(nr(nr(arr1,1,1),-1,0),nr(nr(arr1,1,1),1,0))),na(nr(arr1,-1,0),nr(arr1,1,0))))/9.0+0.5)
             sum23 = nr(sum,-2,1)
             band_max = band[i].GetMaximum()
             band_min = band[i].GetMinimum()
