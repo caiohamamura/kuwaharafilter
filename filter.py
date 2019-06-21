@@ -19,8 +19,8 @@ NUMPY_TYPES_1 = {
     3: numpy.int64,
     4: numpy.uint64,
     5: numpy.int64,
-    2: numpy.float64,
-    3: numpy.float64
+    6: numpy.float64,
+    7: numpy.float64
 }
 
 def dofilter(dlg, input, output, refband=1, memuse=100):
