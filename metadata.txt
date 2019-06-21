@@ -2,7 +2,7 @@
 name=Kuwahara Filter
 qgisMinimumVersion=3.0
 description=Applies Kuwahara Filter
-version=2.4
+version=2.5.1
 author=Caio Hamamura - Laboratorio de Silvicultura Urbana - Universidade de Sao Paulo (campus de Piracicaba)
 email=caiohamamura@gmail.com
 
@@ -14,6 +14,7 @@ about=Applies Kuwahara Filter
 
 # Uncomment the following line and add your changelog entries:
 changelog=
+	2.5 Bug fix: filter without pyopencl numpy types
 	2.4 Calculate variance based on the sum of the three bands
 		2.3.3 Forgot to add required file with c source code
 		2.3.2 Fixed issue involving Qt handling inside threads
