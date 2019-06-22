@@ -222,7 +222,10 @@ def dofilter2(dlg, input, output, memUse=512):
     xSize = tif.RasterXSize
     ySize = tif.RasterYSize
     dataType = tif.GetRasterBand(1).DataType
+    no_data = tif.GetRasterBand(1).GetNoDataValue()
     out = gdal.GetDriverByName('GTiff').Create(output, xSize, ySize, nBands, dataType)
+    for i in range(nBands):
+        out.GetRasterBand(i+1).SetNoDataValue(no_data)
     try:
         out.SetGeoTransform(tif.GetGeoTransform())
         out.SetProjection(tif.GetProjection())
@@ -230,7 +233,7 @@ def dofilter2(dlg, input, output, memUse=512):
         pass
     tifNumpyType = NUMPY_TYPES[dataType]
     cType = C_TYPES[dataType]
-    isFloat = dataType > 5    
+    isFloat = dataType > 5
     
     # Calculate size of chunks and iterations needed
     ROWS_PER_CHUNK = int((((memUse-67)*48036)/xSize)/6)

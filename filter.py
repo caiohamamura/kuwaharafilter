@@ -40,6 +40,7 @@ def dofilter(dlg, input, output, refband=1, memuse=100):
     xsize = tif.RasterXSize
     ysize = tif.RasterYSize
     data_type = tif.GetRasterBand(1).DataType
+    no_data = tif.GetRasterBand(1).GetNoDataValue()
     out = gdal.GetDriverByName('GTiff').Create(str(output), xsize, ysize, nbands, data_type)
     try:
         out.SetGeoTransform(tif.GetGeoTransform())
@@ -50,7 +51,8 @@ def dofilter(dlg, input, output, refband=1, memuse=100):
     oband = [None]*nbands
     for i in range(0,nbands):
         band[i] = tif.GetRasterBand(i+1)
-        oband[i] = out.GetRasterBand(i+1)
+        oband[i] = out.GetRasterBand(i+1)  
+        oband[i].SetNoDataValue(no_data)
     tif_numpy_type = NUMPY_TYPES[data_type]
     tif_numpy_upper_type = NUMPY_TYPES_1[data_type]
     nr=numpy.roll
