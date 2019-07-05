@@ -52,7 +52,8 @@ def dofilter(dlg, input, output, refband=1, memuse=100):
     for i in range(0,nbands):
         band[i] = tif.GetRasterBand(i+1)
         oband[i] = out.GetRasterBand(i+1)  
-        oband[i].SetNoDataValue(no_data)
+        if no_data:
+            oband[i].SetNoDataValue(float(no_data))
     tif_numpy_type = NUMPY_TYPES[data_type]
     tif_numpy_upper_type = NUMPY_TYPES_1[data_type]
     nr=numpy.roll

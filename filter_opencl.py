@@ -224,8 +224,8 @@ def dofilter2(dlg, input, output, memUse=512):
     dataType = tif.GetRasterBand(1).DataType
     no_data = tif.GetRasterBand(1).GetNoDataValue()
     out = gdal.GetDriverByName('GTiff').Create(output, xSize, ySize, nBands, dataType)
-    for i in range(nBands):
-        out.GetRasterBand(i+1).SetNoDataValue(no_data)
+    if no_data:
+        out.GetRasterBand(1).SetNoDataValue(float(no_data))
     try:
         out.SetGeoTransform(tif.GetGeoTransform())
         out.SetProjection(tif.GetProjection())
