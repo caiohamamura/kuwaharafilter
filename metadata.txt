@@ -2,7 +2,7 @@
 name=Kuwahara Filter
 qgisMinimumVersion=3.0
 description=Applies Kuwahara Filter
-version=2.5.2
+version=2.5.3
 author=Caio Hamamura - Laboratorio de Silvicultura Urbana - Universidade de Sao Paulo (campus de Piracicaba)
 email=caiohamamura@gmail.com
 
@@ -14,6 +14,7 @@ about=Applies Kuwahara Filter
 
 # Uncomment the following line and add your changelog entries:
 changelog=
+		2.5.3 Bug fix: None nodatavalue checking
 		2.5.2 Set no data value for the output
         2.5.1 Bug fix: Fix numpy types indexing values
 	2.5 Bug fix: filter without pyopencl numpy types
