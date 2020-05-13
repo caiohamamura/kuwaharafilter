@@ -24,7 +24,7 @@ from builtins import str
 from qgis.PyQt.QtCore import QFileInfo, Qt
 from qgis.PyQt.QtWidgets import QFileDialog, QMessageBox, QApplication, QMainWindow
 from qgis.PyQt.QtGui import QCursor
-from time import clock
+from time import perf_counter as clock
 import datetime as dt
 from qgis.core import QgsProject, QgsMapLayerProxyModel
 from qgis.PyQt import QtCore, QtGui
