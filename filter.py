@@ -1,6 +1,6 @@
 from builtins import str
 from builtins import range
-import gdal, numpy, sys
+import numpy, sys
 from qgis.PyQt.QtCore import QCoreApplication
 
 NUMPY_TYPES = {

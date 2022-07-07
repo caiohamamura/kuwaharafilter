@@ -1,6 +1,6 @@
 from builtins import zip
 from builtins import range
-import gdal, numpy, sys
+import numpy, sys
 import numpy as np
 import threading
 from time import time, sleep
